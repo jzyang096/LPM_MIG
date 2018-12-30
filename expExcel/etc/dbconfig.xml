@@ -8,9 +8,9 @@
 	<resources>
 		<resource type="jdbc" encrypt="false" name="als" jndiName="jdbc/exp_src">
 			<driver>oracle.jdbc.driver.OracleDriver</driver>
-			<url>jdbc:oracle:thin:@10.37.97.95:1521/NCBUXDPDB</url>
-			<user>ALS_NCBLPM</user>
-			<password>ALS_NCBLPM</password>
+			<url>jdbc:oracle:thin:@127.0.0.1:1521/DBNAME</url>
+			<user>123456</user>
+			<password>123456</password>
 			<loginTimeout>0</loginTimeout>
 			<logWriter>system.out</logWriter>
 			<maxActive>100</maxActive>
