@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<LPM-RPT-001>
+		select cb.OrgID,
+			getOrgName(cb.OrgID),cb.UserID,
+			ci.MFCustomerID,
+			ei.CustomerID,
+			ei.EnterpriseName,
+			ei.LoanCardNo,
+			getItemName('CustomerType', ci.CustomerType),
+			getItemName('OrgType', ei.OrgType),
+			getItemName('Scope', ei.Scope),
+			getItemName('IndustryType', ei.IndustryType),
+			getItemName('YesNo', ei.ECGroupFlag),
+			gmr.GroupID,
+			(select GroupName from Group_Info where groupID=gmr.GroupID)
+			from Ent_Info ei
+			left join Customer_Info ci on ci.CustomerID=ei.CustomerID
+			left join Customer_Belong cb on cb.CustomerID=ei.CustomerID
+			left join Group_Member_Relative gmr on ei.CustomerID=gmr.MemberCustomerID
+			where cb.BelongAttribute='1' and ci.CustomerType like '01%'
+</LPM-RPT-001>
+
+<LPM-RPT-002>
+		select cb.OrgID,
+			getOrgName(cb.OrgID),
+			cb.UserID,
+			getItemName('CustomerType', ci.CustomerType),
+			count(cb.CustomerID)
+			from Customer_Belong cb
+			left join Customer_Info ci on cb.CustomerID = ci.CustomerID
+			where ci.CustomerType like '01%' and cb.BelongAttribute='1'
+</LPM-RPT-002>
+
+
+</root>

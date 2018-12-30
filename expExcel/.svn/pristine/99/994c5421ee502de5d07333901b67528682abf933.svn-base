@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+
+	<!--****************************** 技术核对 ****************************** -->
+	<!-- 大中客户记录数核对 -->
+	<LPM-RPT-001>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on ci.CustomerID=cb.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType ='0110'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-001>
+
+	<!-- 小微客户记录数核对 -->
+	<LPM-RPT-002>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on cb.CustomerID=ci.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType ='0120'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-002>
+
+	<!-- 个人客户记录数核对 -->
+	<LPM-RPT-003>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on cb.CustomerID=ci.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType like '03%'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-003>
+
+	<!-- 同业客户记录数核对 -->
+	<LPM-RPT-004>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on cb.CustomerID=ci.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType like '06%'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-004>
+
+	<!-- 集团客户记录数核对 -->
+	<LPM-RPT-005>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on cb.CustomerID=ci.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType like '02%'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-005>
+
+	<!-- 集团成员记录数核对 -->
+	<LPM-RPT-006>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		gmr.GroupID,
+		(select groupName from Group_Info where
+		GroupID=gmr.GroupID) as groupName,
+		count(gmr.MemberCustomerID)
+		from
+		Group_Member_Relative gmr
+		left join Customer_Belong cb on
+		cb.CustomerID=gmr.GroupID
+		where cb.BelongAttribute='1'
+		group by
+		cb.Orgid, cb.Userid, gmr.Groupid
+	</LPM-RPT-006>
+
+	<!-- 业务合同记录数核对 -->
+	<LPM-RPT-007>
+		select bc.CustomerID,
+		bc.CustomerName,
+		getBusinessName(bc.BusinessType),
+		getItemName('ContractType2',bc.ContractType),
+		count(bc.SerialNo)
+		from
+		Business_Contract bc
+		where 1=1
+		group by bc.CustomerID, bc.CustomerName,
+		bc.BusinessType,bc.ContractType
+	</LPM-RPT-007>
+
+	<!-- 担保合同记录数核对 -->
+	<LPM-RPT-008>
+		select gc.CustomerID,
+		ci.CustomerName,
+		getItemName('ContractType', gc.ContractType) as GCContractType,
+		getItemName('VouchType1', gc.GuarantyType) as GCGuarantyType,
+		count(gc.SerialNo)
+		from Guaranty_Contract gc
+		left join Customer_Info ci
+		on gc.CustomerID = ci.CustomerID
+		where 1=1
+		group by gc.CustomerID,
+		ci.CustomerName, gc.ContractType, gc.GuarantyType
+	</LPM-RPT-008>
+
+	<!-- 押品记录数核对 -->
+	<LPM-RPT-009>
+		select gi.OwnerID,
+		gi.OwnerName,
+		cci.GuarantyTypeName,
+		count(gi.GuarantyID)
+		from Guaranty_Info gi
+		left join
+		Cms_CollateralType_Info cci on gi.GuarantyType = cci.GuarantyType
+		where 1=1
+		group by gi.OwnerID, gi.OwnerName, cci.GuarantyTypeName
+	</LPM-RPT-009>
+
+	<!-- 押品权利人总额核对 -->
+	<LPM-RPT-010>
+
+	</LPM-RPT-010>
+
+	<!-- 押品保险记录数核对 -->
+	<LPM-RPT-011>
+		select gi.OwnerID,
+		gi.OwnerName,
+		cii.GuarantyID,
+		cci.GuarantyTypeName,
+		count(cii.SerialNo)
+		from Cms_Insurance_Info cii
+		left join Guaranty_Info gi on cii.GuarantyID = gi.GuarantyID
+		left join
+		Cms_CollateralType_Info cci on cci.GuarantyType = gi.GuarantyType
+		group by gi.OwnerID, gi.OwnerName, cii.GuarantyID,
+		cci.GuarantyTypeName
+	</LPM-RPT-011>
+
+	<!-- 额度记录数核对 -->
+	<LPM-RPT-012>
+		select ci.CustomerID,
+		ci.CustomerName,
+		getItemName('OURROLE', ci.CLTypeID),
+		bt.TypeName,
+		getItemName('Currency', ci.Currency),
+		count(ci.LineID)
+		from CL_Info ci
+		left join Business_Type bt on ci.BusinessType = bt.TypeNo
+		where ci.Status = '1'
+		group by ci.CustomerID, ci.CustomerName, ci.CLTypeID, bt.TypeName,
+		ci.Currency
+	</LPM-RPT-012>
+
+	<!-- 基本授信额度切分记录数核对 -->
+	<LPM-RPT-013>
+		select ci.CustomerID,
+		ci.CustomerName,
+		cd.ObjectNo,
+		count(cd.SerialNo)
+		from CL_Divide cd
+		left join CL_Info ci on ci.LineID =
+		cd.ObjectNo
+		where cd.ObjectType = 'CLInfo' and ci.Status = '1'
+		group by ci.CustomerID,
+		ci.CustomerName, cd.ObjectNo
+	</LPM-RPT-013>
+
+	<!-- 集团成员额度记录数核对 -->
+	<LPM-RPT-014>
+		select gmr.GroupID, gi.GroupName, count(ci.LineID)
+		from Group_Member_Relative gmr
+		left join CL_Info ci
+		on gmr.MemberCustomerID = ci.CustomerID
+		left join Group_Info gi
+		on gmr.GroupID = gi.GroupID
+		where ci.Status = '1'
+		group by gmr.GroupID, gi.GroupName
+	</LPM-RPT-014>
+
+	<!-- 批量授信额度记录数核对 -->
+	<LPM-RPT-015>
+		select ab.RelativeBatchSerialno,
+		getItemName('YesNo',
+		ab.IsOccupancy),
+		count(ab.SerialNo)
+		from APPLY_BATCHRELATIVE ab
+		where ab.ObjectType = 'CLInfo'
+		group by ab.RelativeBatchSerialno, ab.IsOccupancy
+	</LPM-RPT-015>
+
+	<!-- -->
+	<LPM-RPT-016>
+
+	</LPM-RPT-016>
+
+	<!-- -->
+	<LPM-RPT-017>
+
+	</LPM-RPT-017>
+
+	<!-- -->
+	<LPM-RPT-018>
+
+	</LPM-RPT-018>
+
+	<!-- -->
+	<LPM-RPT-019>
+
+	</LPM-RPT-019>
+
+	<!-- -->
+	<LPM-RPT-020>
+
+	</LPM-RPT-020>
+
+	<!-- -->
+	<LPM-RPT-021>
+
+	</LPM-RPT-021>
+
+	<!-- -->
+	<LPM-RPT-024>
+select d.mfcustomerid,
+       d.customerid,
+       d.customername,
+       d.relativeserialno2,
+       bt.typename， count(d.serialno)
+  from business_duebill d
+  left join business_type bt
+    on d.businesstype = bt.typeno
+ where 1 = 1
+ group by d.mfcustomerid,
+          d.customerid,
+          d.customername,
+          d.relativeserialno2,
+          bt.typename
+	</LPM-RPT-024>
+
+
+
+	<!-- <LPM-RPT-001> select cb.OrgID, getOrgName(cb.OrgID),cb.UserID, ci.MFCustomerID,
+		ei.CustomerID, ei.EnterpriseName, ei.LoanCardNo, getItemName('CustomerType', 
+		ci.CustomerType), getItemName('OrgType', ei.OrgType), getItemName('Scope', 
+		ei.Scope), getItemName('IndustryType', ei.IndustryType), getItemName('YesNo', 
+		ei.ECGroupFlag), gmr.GroupID, (select GroupName from Group_Info where groupID=gmr.GroupID) 
+		from Ent_Info ei left join Customer_Info ci on ci.CustomerID=ei.CustomerID 
+		left join Customer_Belong cb on cb.CustomerID=ei.CustomerID left join Group_Member_Relative 
+		gmr on ei.CustomerID=gmr.MemberCustomerID where cb.BelongAttribute='1' and 
+		ci.CustomerType like '01%' </LPM-RPT-001> <LPM-RPT-002> select cb.OrgID, 
+		getOrgName(cb.OrgID), cb.UserID, getItemName('CustomerType', ci.CustomerType), 
+		count(cb.CustomerID) from Customer_Belong cb left join Customer_Info ci on 
+		cb.CustomerID = ci.CustomerID where ci.CustomerType like '01%' and cb.BelongAttribute='1' 
+		</LPM-RPT-002> -->
+</root>

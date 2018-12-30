@@ -1,0 +1,419 @@
+package com.amarsoft.als.exp;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.amarsoft.are.ARE;
+import com.amarsoft.are.util.xml.Document;
+import com.amarsoft.are.util.xml.Element;
+
+public class SqlManager {
+	
+	private String sSql="";
+	private String sTableName = "";//表名
+	private String sSheetName = "";//Sheet名
+	private String sTitleName = "";//标题名
+	
+	public String getSql(String sAction,String sOrgID){
+		Document doc = null;
+		try {
+			doc = new Document(ARE.getProperty("sqlFile"));
+            Element root=doc.getRootElement();
+            List<?> listSql=root.getChildren(sAction);
+            Element ee = (Element)listSql.get(0);
+            sSql = ee.getTextTrim();
+        } catch (Exception e) {
+        	ARE.getLog().error("解析 table.xml文件出错!"+e.getLocalizedMessage());
+        }
+		
+		if("LPM-RPT-2010".equals(sAction)){//大中客户汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" group by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2020".equals(sAction)){//大中客户信息明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by ci.CustomerID ";
+		}else if("LPM-RPT-2030".equals(sAction)){//小微客户汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" group by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2040".equals(sAction)){//小微客户信息明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by ci.CustomerID ";
+		}else if("LPM-RPT-2050".equals(sAction)){//个人客户汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" group by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2060".equals(sAction)){//个人信息明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by ci.CustomerID ";
+		}else if("LPM-RPT-2070".equals(sAction)){//同业客户汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" group by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2080".equals(sAction)){//同业客户信息明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2090".equals(sAction)){//集团客户汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" group by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2100".equals(sAction)){//集团客户信息明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2110".equals(sAction)){//集团成员汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" group by cb.OrgID,cb.UserID,ci.CustomerID,ci.CustomerName ";
+		}else if("LPM-RPT-2120".equals(sAction)){//集团成员信息明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2130".equals(sAction)){//额度信息汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and ci.InputOrg='"+sOrgID+"' "; }
+			sSql+=" group by cc.MFCustomerID,ci.CustomerID,ci.CustomerName,ci.CLTypeID,ci.BusinessType ";
+		}else if("LPM-RPT-2140".equals(sAction)){//额度信息明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and ci.InputOrg='"+sOrgID+"' "; }
+			sSql+=" order by ci.LineID ";
+		}else if("LPM-RPT-2150".equals(sAction)){//基本授信额度切分汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and ci.InputOrg='"+sOrgID+"' "; }
+			sSql+=" group by cc.MFCustomerID,ci.CustomerID,ci.CustomerName,cd.ObjectNo ";
+		}else if("LPM-RPT-2160".equals(sAction)){//基本授信额度切分明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and ci.InputOrg='"+sOrgID+"' "; }
+			sSql+=" order by ci.LineID ";
+		}else if("LPM-RPT-2170".equals(sAction)){//同业额度汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and ci.InputOrg='"+sOrgID+"' "; }
+			sSql+=" group by cc.MFCustomerID,ci.CustomerID,ci.CustomerName,ci.CLTypeID,ci.BusinessType ";
+		}else if("LPM-RPT-2180".equals(sAction)){//同业额度明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and ci.InputOrg='"+sOrgID+"' "; }
+			sSql+=" order by ci.LineID ";
+		}else if("LPM-RPT-2190".equals(sAction)){//批量额度关联表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and ci.InputOrg='"+sOrgID+"' "; }
+			sSql+=" order by ab.SerialNo ";
+		}else if("LPM-RPT-2200".equals(sAction)){// 额度占用汇总表(国结)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by bd.MFCustomerID,bd.CustomerID,bd.CustomerName,bd.BusinessType,co.Currency ";
+		}else if("LPM-RPT-2210".equals(sAction)){//额度占用明细表(国结)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by co.SerialNo ";
+		}else if("LPM-RPT-2220".equals(sAction)){//额度占用汇总表(供应链)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by bd.MFCustomerID,bd.CustomerID,bd.CustomerName,bd.BusinessType,co.Currency ";
+		}else if("LPM-RPT-2230".equals(sAction)){//额度占用明细表(供应链)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by co.SerialNo ";
+		}else if("LPM-RPT-2240".equals(sAction)){//额度占用汇总表(票据)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by bd.MFCustomerID,bd.CustomerID,bd.CustomerName,bd.BusinessType,co.Currency ";
+		}else if("LPM-RPT-2250".equals(sAction)){//额度占用明细表(票据)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by co.SerialNo ";
+		}else if("LPM-RPT-2260".equals(sAction)){//额度占用汇总表(核心-一般贷款)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by bd.MFCustomerID,bd.CustomerID,bd.CustomerName,bd.BusinessType,co.Currency ";
+		}else if("LPM-RPT-2270".equals(sAction)){//额度占用明细表(核心-一般贷款)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by co.SerialNo ";
+		}else if("LPM-RPT-2280".equals(sAction)){//额度占用明细表(代客资金)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by co.SerialNo ";
+		}else if("LPM-RPT-2290".equals(sAction)){//额度占用明细表(核心-法人透支)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by co.SerialNo ";
+		}else if("LPM-RPT-2300".equals(sAction)){//额度占用明细表(资金交易)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and co.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by co.SerialNo ";
+		}else if("LPM-RPT-2310".equals(sAction)){//担保合同汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and gc.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by ci.MFCustomerID,gc.CustomerID,ci.CustomerName,gc.ContractType,gc.GuarantyType ";
+		}else if("LPM-RPT-2320".equals(sAction)){//担保合同(保证)明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and gc.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by gc.CustomerID ";
+		}else if("LPM-RPT-2330".equals(sAction)){//担保合同(抵质押)明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and gc.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by gc.CustomerID ";
+		}else if("LPM-RPT-2340".equals(sAction)){//押品信息汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and gi.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by gi.OwnerID,gi.OwnerName,cci.GuarantyTypeName ";
+		}else if("".equals(sAction)){//押品信息明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and gi.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by gi.GuarantyID ";
+		}else if("LPM-RPT-2360".equals(sAction)){//押品权利人总额汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and gi.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by gi.OwnerID,gi.OwnerName,cci.GuarantyTypeName,gi.EvalCurrency ";
+		}else if("LPM-RPT-2370".equals(sAction)){//押品保险汇总表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and gci.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by ci.MFCustomerID,gci.CustomerID,gci.CustomerName,gci.GuarantyTypeName,gci.GuarantyID ";
+		}else if("LPM-RPT-2380".equals(sAction)){//押品保险明细表
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and gci.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by gci.CustomerID,gci.GuarantyID ";
+		}else if("LPM-RPT-2390".equals(sAction)){//借据信息汇总表(核心-一般贷款)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and bd.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by bd.MFCustomerID,bd.CustomerID,bd.CustomerName,bd.RelativeSerialno2,bd.BusinessType ";
+		}else if("LPM-RPT-2400".equals(sAction)){//借据信息明细表(核心-一般贷款)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and bd.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by bd.CustomerID,bd.RelativeSerialno2 ";
+		}else if("LPM-RPT-2410".equals(sAction)){//借据信息汇总表(票据)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and bd.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by bd.MFCustomerID,bd.CustomerID,bd.CustomerName,bd.RelativeSerialno2,bd.BusinessType ";
+		}else if("LPM-RPT-2420".equals(sAction)){//借据信息明细表(票据)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and bd.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by bd.CustomerID,bd.RelativeSerialno2 ";
+		}else if("LPM-RPT-2430".equals(sAction)){//借据信息汇总表(国结)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and bd.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by bd.MFCustomerID,bd.CustomerID,bd.CustomerName,bd.RelativeSerialno2,bd.BusinessType ";
+		}else if("LPM-RPT-2440".equals(sAction)){//借据信息明细表(国结)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and bd.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by bd.CustomerID,bd.RelativeSerialno2 ";
+		}else if("LPM-RPT-2450".equals(sAction)){//借据信息汇总表(供应链)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and bd.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" group by bd.MFCustomerID,bd.CustomerID,bd.CustomerName,bd.RelativeSerialno2,bd.BusinessType ";
+		}else if("LPM-RPT-2460".equals(sAction)){//借据信息明细表(供应链)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and bd.InputOrgID='"+sOrgID+"' "; }
+			sSql+=" order by bd.CustomerID,bd.RelativeSerialno2 ";
+		}else if("LPM-RPT-2470".equals(sAction)){//大中客户所属(异常报表)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2480".equals(sAction)){//小微客户所属(异常报表)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2490".equals(sAction)){//个人客户所属(异常报表)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2500".equals(sAction)){//同业客户所属(异常报表)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by cb.OrgID,cb.UserID ";
+		}else if("LPM-RPT-2510".equals(sAction)){//集团客户所属(异常报表)
+			if(!"all".equals(sOrgID)){//分行
+				sSql+=" and cb.OrgID='"+sOrgID+"' "; }
+			sSql+=" order by cb.OrgID,cb.UserID ";
+		}
+		//ARE.getLog().debug("sSql="+sSql);
+		return sSql;
+	}
+	
+	//获取机构
+	public ArrayList<String> getOrgID(String sMode){
+		DBUtil dbUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=dbUtil.getConnection();
+		ArrayList<String> list=new ArrayList<String>();
+		if("1".equals(sMode)){//技术核对
+			list.add("all");
+		}else{//业务核对
+			sSql=" select OrgID from Org_Info where OrgLevel in ('3','6') ";
+			try {
+				pstmt=conn.prepareStatement(sSql);
+				rs=pstmt.executeQuery();
+				while(rs.next()){
+					list.add(rs.getString("OrgID"));//装入机构
+				}
+				list.add("all");
+			} catch (SQLException e) {
+				ARE.getLog().error("获取机构号失败!");
+				e.printStackTrace();
+			}
+			dbUtil.cleanResource(conn, pstmt, rs);//关闭资源
+		}
+		return list;
+	}
+	
+	//获取机构名
+	public String getOrgName(String sOrgID){
+		String sOrgName = "";
+		DBUtil dbUtil = new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn = dbUtil.getConnection();
+		sSql = " select OrgName from Org_Info where OrgID='"+sOrgID+"'";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			if(rs.next()) sOrgName=rs.getString("OrgName");
+			if(sOrgName==null) sOrgName="";
+		} catch (SQLException e) {
+			ARE.getLog().error("机构号:"+sOrgID+" 获取机构名失败!");
+			e.printStackTrace();
+		}
+		dbUtil.cleanResource(conn, pstmt, rs);//关闭资源
+		return sOrgName;
+	}
+	
+	//装载生成动作
+	public ArrayList<String> getAction(String sMode){
+		ArrayList<String> ls = new ArrayList<String>();
+		DBUtil dbUtil = new DBUtil();
+		ResultSet rs = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		conn = dbUtil.getConnection();
+		sSql="select action from ExcelInfo where isInUse='1' and checkMode='"+sMode+"' order by SortNo";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			while(rs.next()){
+				ls.add(rs.getString("action"));
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error(" 装载Excel生成动作失败! ");
+			e.printStackTrace();
+		}
+		dbUtil.cleanResource(conn, pstmt, rs);//关闭资源
+		return ls;
+	}
+	
+	//获取表名
+	public String getTableName(String sAction){
+		DBUtil dbUtil = new DBUtil();
+		ResultSet rs = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		conn = dbUtil.getConnection();
+		sSql=" select tableName from ExcelInfo where action =? ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sAction);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				sTableName=rs.getString("tableName");
+				if(sTableName==null) sTableName="";
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("["+sAction+"] 获取数据库表名失败!");
+			e.printStackTrace();
+		}
+		dbUtil.cleanResource(conn, pstmt, rs);//关闭资源
+		return sTableName;
+	}
+	
+	//获取Sheet名
+	public String getSheetName(String sAction){
+		DBUtil dbUtil = new DBUtil();
+		ResultSet rs = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		conn = dbUtil.getConnection();
+		sSql=" select sheetName from ExcelInfo where action =? ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sAction);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				sSheetName=rs.getString("sheetName");
+				if(sSheetName==null) sSheetName="";
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("["+sAction+"] 获取Sheet名失败!");
+			e.printStackTrace();
+		}
+		dbUtil.cleanResource(conn, pstmt, rs);//关闭资源
+		return sSheetName;
+	}
+	
+	//获取标题名
+	public String getTitleName(String sAction){
+		DBUtil dbUtil = new DBUtil();
+		ResultSet rs = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		conn = dbUtil.getConnection();
+		sSql=" select titleName from ExcelInfo where action =? ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sAction);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				sTitleName=rs.getString("titleName");
+				if(sTitleName==null) sTitleName="";
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("["+sAction+"] 获取标题名失败!");
+			e.printStackTrace();
+		}
+		dbUtil.cleanResource(conn, pstmt, rs);//关闭资源
+		return sTitleName;
+	}
+	
+	//目录页面根据生产工作获得sheet名
+	public ArrayList<String> getIndexName(ArrayList<?> list){
+		ArrayList<String> indexList=new ArrayList<String>();
+		String sIndexName="";
+		DBUtil dbUtil = new DBUtil();
+		ResultSet rs = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		conn = dbUtil.getConnection();
+		for(int i=0; i<list.size();i++){
+			sSql=" select sheetName from ExcelInfo where action =? ";
+			try {
+				pstmt=conn.prepareStatement(sSql);
+				pstmt.setString(1, (String) list.get(i));
+				rs=pstmt.executeQuery();
+				if(rs.next()){
+					sIndexName=rs.getString("sheetName");
+					if(sIndexName==null) sIndexName="";
+					indexList.add(sIndexName);
+				}
+			} catch (SQLException e) {
+				ARE.getLog().error("["+list.get(i)+"] 获取标题名失败!");
+				e.printStackTrace();
+			}finally{
+				dbUtil.closePreparedStatement(pstmt);
+				dbUtil.closeResultSet(rs);
+			}
+		}
+		dbUtil.cleanResource(conn, pstmt, rs);//关闭资源
+		return indexList;
+	}
+	
+}

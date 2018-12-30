@@ -1,0 +1,77 @@
+package com.amarsoft.als.exp;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import com.amarsoft.are.ARE;
+
+public class ExpExcelCtrl {
+
+	private boolean exit = false;
+	private TaskInfo task = null;
+
+	public ExpExcelCtrl(TaskInfo t) {
+		task = t;
+	}
+
+	/**
+	 * 迁移总控程序
+	 * 
+	 * @return
+	 */
+	public void migration() {
+		final ExecutorService exec = Executors.newFixedThreadPool(task.getThreadPoolSize()+1);
+		final BlockingQueue<String> queue = new ArrayBlockingQueue<String>(task.getQueueLen());
+		final String exitFlag = "Exit";
+		
+		// 管理线程用来往队列中放置任务
+		Runnable manager = new Runnable() {
+			public void run() {
+				try {
+					for (int i = 0; i < task.getOrgList().size(); i ++) {
+						queue.put((String)task.getOrgList().get(i));
+						ARE.getLog().debug("ExpCtrl TASKIN 任务输入队列["+i+"]"+task.getOrgList().get(i));
+					}
+					queue.put(exitFlag);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		exec.execute(manager);
+		
+		for (int index = 0; index < task.getThreadPoolSize(); index++) {
+			Runnable copy = new Runnable() {
+				public void run() {
+					while (true) {
+						try {
+							String sOrgID = queue.take();					
+							if (sOrgID.equals(exitFlag)) {
+								queue.put(exitFlag);
+								break;
+							}
+							ARE.getLog().debug("机构号:["+sOrgID+"] ExpCtrl TASKOUT 任务被取走");
+							double time = new ExpExcelTask().export(sOrgID,task.getActionList(),task.getMode());
+							ARE.getLog().debug("机构号:["+sOrgID+"] ExpExcelCtrl TASKCMP 处理完成 耗时:["+time/60+"]Minute");
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			};
+			exec.submit(copy);
+		}
+		exec.shutdown();
+		return;
+	}
+
+	public boolean isExit() {
+		return exit;
+	}
+
+	public void setExit(boolean exit) {
+		this.exit = exit;
+	}
+}

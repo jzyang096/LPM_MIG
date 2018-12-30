@@ -1,0 +1,79 @@
+package com.amarsoft.als.exp;
+
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import com.amarsoft.are.ARE;
+
+public class ExpExcelTask {
+
+	public double export(String sOrgID,ArrayList<String> sActionList,String sMode){
+		double time = 0.00;
+		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS");
+		java.text.SimpleDateFormat sdf1 = new java.text.SimpleDateFormat("yyyyMMdd");
+		java.util.Date dBeginTime = new java.util.Date();
+		SqlManager sqlManager = new SqlManager();
+		String sOrgName = "";
+		String sFileName = "";
+		//每个机构生成一个Excel文件
+		if("all".equals(sOrgID)){
+			sOrgName="全量";
+		}else{
+			sOrgName=sqlManager.getOrgName(sOrgID);
+		}
+		if("1".equals(sMode))
+			sFileName="lpm_技术核对清单_"+sdf1.format(dBeginTime)+".xls";
+		else
+			sFileName="lpm_"+sOrgID+"_"+sOrgName+"_"+sdf1.format(dBeginTime)+".xls";
+		//创建Excel文件
+		ARE.getLog().debug("开始创建 "+sFileName+"文件......");
+		HSSFWorkbook wb = new HSSFWorkbook();
+		String sTableName = "";//表名
+		String sSheetName = "";//Sheet名
+		String sTitleName = "";//标题名
+		boolean bFlag=false;
+		for(int i=0;i<sActionList.size();i++){
+			sTableName = sqlManager.getTableName(sActionList.get(i));//获取表名
+			//sTableName = "";
+			sSheetName = sqlManager.getSheetName(sActionList.get(i));//获取Sheet名
+			sTitleName = sqlManager.getTitleName(sActionList.get(i));//获取标题名
+			//获得对应列名
+			XmlManager ColumnManager=new XmlManager();
+			ArrayList<String> list = ColumnManager.getColumnName(sActionList.get(i));
+			int iColumnLength=list.size();
+			GenExcelSheet GenExcelSheet=new GenExcelSheet();
+			try {
+				bFlag=true;
+				wb = GenExcelSheet.genExcelSheet(wb, sActionList.get(i), sTableName, sSheetName, sTitleName, iColumnLength, list, sOrgID);
+				ARE.getLog().debug(sFileName+" "+sSheetName+":生成Sheet成功!");
+			} catch (Exception e) {
+				bFlag=false;
+				ARE.getLog().error(sFileName+" "+sSheetName+":生成Sheet失败!");
+				e.printStackTrace();
+			}
+		}
+		//若Sheet都成功生成，则生成Excel文件
+		if(bFlag){
+			try {
+				String sPath=ARE.getProperty("FilePath");//获取文件路径
+				if(sPath==null) sPath="./export/";//不配置默认文件生成在工程下
+				sPath=sPath+sFileName;
+				FileOutputStream fout = new FileOutputStream(sPath);
+				wb.write(fout);
+				fout.flush();
+				fout.close();
+				ARE.getLog().debug(sFileName+" 生成Excel文件成功!");
+			} catch (Exception e) {
+				ARE.getLog().error(sFileName+" 生成Excel文件失败!");
+				e.printStackTrace();
+			}
+		}
+		
+		java.util.Date dEndTime = new java.util.Date();
+		time = (dEndTime.getTime() - dBeginTime.getTime()) / 1000.0;
+		ARE.getLog().debug("机构号:"+sOrgID+" 机构名:"+sOrgName+" ExpExcelTask BeginTime:["+ sdf.format(dBeginTime) + "] EndTime:[" + sdf.format(dEndTime) + "]耗时[" + time + "]秒 [" + time / 60+ "]分");
+		return time;
+	}
+	
+}

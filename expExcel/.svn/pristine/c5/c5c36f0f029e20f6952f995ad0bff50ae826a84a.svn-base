@@ -1,0 +1,74 @@
+package com.amarsoft.als.exp;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.amarsoft.are.ARE;
+
+public class InitData {
+
+	//初始化中间表数据
+	//1.押品保险信息表数据加工
+	public void initData(){
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		String sCount="";
+		//查询该表是否存在
+		sSql=" select count(1) as count from user_tables where Table_Name ='GUARANTY_CMS_INFO' ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				sCount=rs.getString("count");
+				if(sCount==null) sCount="";
+			}
+			if(!"0".equals(sCount)){//存在该中间表则删除,重新生成数据
+				pstmt=conn.prepareStatement(" DROP TABLE Guaranty_CMS_Info ");
+				pstmt.execute();
+				ARE.getLog().debug("DROP TABLE Guaranty_CMS_Info表成功!");
+			}
+		} catch (SQLException e1) {
+			ARE.getLog().error("DROP TABLE Guaranty_CMS_Info表失败!");
+			e1.printStackTrace();
+		}
+		sSql=" Create Table Guaranty_CMS_Info as select distinct bc.CustomerID, "+
+			 " bc.CustomerName as CustomerName, "+
+			 " gi.OwnerID as OwnerID, "+
+			 " gi.OwnerName as OwnerName, "+
+			 " ci.GuarantyTypeName as GuarantyTypeName, "+
+			 " gi.GuarantyID as GuarantyID, "+
+			 " cms.InsurerName as InsurerName, "+
+			 " getItemName('InsurerStatus', cms.INSURERSTATUS) as STATUS, "+
+			 " cms.Guaranteeslipno as Guaranteeslipno, "+
+			 " cms.INSURANCE as INSURANCE, "+
+			 " cms.Beneficiary as Beneficiary, "+
+			 " cms.StartDate as StartDate, "+
+			 " cms.EndDate as EndDate, "+
+			 " cms.inputOrgID as InputOrg "+
+			 " from CMS_INSURANCE_INFO cms, "+
+			 " Guaranty_Info gi, "+
+			 " Guaranty_Relative gr, "+
+			 " Business_Contract bc, "+
+			 " CMS_COLLATERALDONO_INFO ci "+
+			 " where cms.GuarantyID = gi.GuarantyID "+
+			 " and gi.GuarantyID = gr.GuarantyID "+
+			 " and gr.ObjectNo = bc.SerialNo "+
+			 " and ci.GuarantyType = gi.GuarantyType "+
+			 " and gr.ObjectType='BusinessContract' ";
+			try {
+				pstmt=conn.prepareStatement(sSql);
+				pstmt.execute();
+				ARE.getLog().debug("中间表: Guaranty_CMS_Info 创建成功!");
+			} catch (SQLException e) {
+				ARE.getLog().debug("中间表: Guaranty_CMS_Info 创建失败!");
+				e.printStackTrace();
+			}
+	}
+	
+}

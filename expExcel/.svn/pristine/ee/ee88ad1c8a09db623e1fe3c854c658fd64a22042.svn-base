@@ -1,0 +1,21 @@
+package com.amarsoft.als.exp;
+
+import com.amarsoft.are.ARE;
+import com.amarsoft.are.util.CommandLineArgument;
+
+public class ExpMain {
+	
+	public static void main(String[] args) {
+		CommandLineArgument arg = new CommandLineArgument(args);
+		String are = arg.getArgument("are");
+		if (are != null)
+			ARE.init(are);
+		else
+			ARE.init("etc/are.xml");
+		new InitData().initData();//初始化中间表加工数据
+		String taskFile = arg.getArgument("task", ARE.getProperty("taskFile_yc"));
+		ExpExcelCtrl dm = new ExpExcelCtrl(new TaskInfo(taskFile));
+		dm.migration();
+	}
+	
+}

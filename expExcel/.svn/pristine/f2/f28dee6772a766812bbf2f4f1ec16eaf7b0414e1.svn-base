@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task>
+	<QueueLen>10</QueueLen>
+	<ThreadPoolSize>10</ThreadPoolSize>
+	<Src>als</Src>
+	<Path>./export/yc</Path>
+	<SheetList>
+		<!-- 客户(大中,小微企业)信息明细表 -->
+		<LPM-RPT-001>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="CIN" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="中征码" />
+			<Column name="客户类型" />
+			<Column name="企业类型" />
+			<Column name="企业规模" />
+			<Column name="国标行业分类" />
+			<Column name="是否征信标准集团客户" />
+			<Column name="所属集团" />
+			<Column name="集团名称" />
+		</LPM-RPT-001>
+		
+		<!-- 客户(大中,小微企业)信息汇总表 -->
+		<LPM-RPT-002>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户类型" />
+			<Column name="客户数量" />
+		</LPM-RPT-002>
+		
+		<!-- 客户(个人)信息汇总表 -->
+		<LPM-RPT-003>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户编号" />
+			<Column name="CIN" />
+			<Column name="客户名称" />
+			<Column name="性别" />
+			<Column name="出生日期" />
+			<Column name="婚姻状况" />
+			<Column name="最高学历" />
+			<Column name="最高学位" />
+			<Column name="居住状况" />
+			<Column name="手机号码" />
+			<Column name="职业" />
+			<Column name="单位名称" />
+			<Column name="单位所属行业" />
+		</LPM-RPT-003>
+		
+		<!-- 客户(个人)信息汇总表 -->
+		<LPM-RPT-004>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-004>
+		
+		<!-- 客户(同业)信息明细表 -->
+		<LPM-RPT-005>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户编号" />
+			<Column name="CIN" />
+			<Column name="客户名称" />
+			<Column name="组织类型" />
+			<Column name="企业规模" />
+			<Column name="国标行业分类" />
+			<Column name="所属集团" />
+			<Column name="所属集团名称" />
+		</LPM-RPT-005>
+		
+		<!-- 客户(同业)信息汇总表 -->
+		<LPM-RPT-006>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户类型" />
+			<Column name="客户数量" />
+		</LPM-RPT-006>
+		
+		<!-- 客户(集团)信息明细表 -->
+		<LPM-RPT-007>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="集团编号" />
+			<Column name="集团户号" />
+			<Column name="集团名称" />
+			<Column name="核心企业客户编号" />
+			<Column name="核心企业客户名称" />
+			<Column name="是否财务集中" />
+		</LPM-RPT-007>
+		
+		<!-- 客户(集团)信息汇总表 -->
+		<LPM-RPT-008>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-008>
+		
+		<LPM-RPT-009>
+		
+		</LPM-RPT-009>
+		
+		<LPM-RPT-010>
+		
+		</LPM-RPT-010>
+		
+		<LPM-RPT-011>
+		
+		</LPM-RPT-011>
+
+		<LPM-RPT-017>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="押品类型" />
+			<Column name="押品编号" />
+			<Column name="保险公司名称" />
+			<Column name="保险状态" />
+			<Column name="保单号" />
+			<Column name="金额" />
+			<Column name="保险受益人" />
+			<Column name="保单生效日" />
+			<Column name="保单到期日" />
+		</LPM-RPT-017>
+
+		<LPM-RPT-018>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="押品类型" />
+			<Column name="押品编号" />
+			<Column name="笔数" />
+		</LPM-RPT-018>
+		
+	</SheetList>
+</task>

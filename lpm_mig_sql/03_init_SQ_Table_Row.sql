@@ -1,0 +1,94 @@
+--备份原表数据
+drop table sq_table_row_mig;
+create table sq_table_row_mig as select * from sq_table_row;
+--初始化中间表数据
+truncate table sq_table_row;
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CUSTOMER_BELONG', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CUSTOMER_RELATIVE', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('ENT_INFO', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('IND_INFO', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CUSTOMER_ADDRESS', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CUSTOMER_TEL', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CUSTOMER_CERT', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('BUSINESS_APPROVE', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('BUSINESS_CONTRACT', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('BUSINESS_DUEBILL', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('GUARANTY_CONTRACT', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('GUARANTY_INFO', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('GUARANTY_RELATIVE', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CL_INFO', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CL_DIVIDE', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CL_OCCUPY', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('BUSINESS_WASTEBOOK', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('GROUP_INFO', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('GROUP_MEMBER_RELATIVE', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CONTRACT_RELATIVE', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CMS_INSURANCE_INFO', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CUSTOMER_INFO', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CL_CREDIT_SAME', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('APPLY_BATCHRELATIVE', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('CLASSIFY_RECORD', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('MARGIN_INFO', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('BUSINESS_IMAGE_RELATIVE', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('BILL_INFO', null, null);
+
+insert into SQ_TABLE_ROW (TABLENAME, IMPROWCOUNT, ACTUALROWCOUNT)
+values ('BUSINESS_PUTOUT', null, null);
+
+commit;

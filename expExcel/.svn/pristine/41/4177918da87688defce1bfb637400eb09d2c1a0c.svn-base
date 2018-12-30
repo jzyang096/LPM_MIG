@@ -1,0 +1,101 @@
+package com.amarsoft.als.exp;
+
+import java.util.ArrayList;
+
+import com.amarsoft.are.ARE;
+import com.amarsoft.are.util.xml.Document;
+import com.amarsoft.are.util.xml.Element;
+
+public class TaskInfo {
+	private String src = "als";
+	private int QueueLen = 20;
+	private int ThreadPoolSize = 20;
+	private ArrayList<String> orgList = new ArrayList<String>();
+	private ArrayList<String> actionList = new ArrayList<String>();
+
+	public TaskInfo(String etc) {
+    	Document doc = null;
+		try {
+			doc = new Document(etc);
+			Element root = doc.getRootElement();
+			String s = root.getChildTextTrim("Src");
+			if (s != null) {
+				setSrc(s);
+				ARE.getLog().debug("Task Src="+getSrc());
+			}
+			else {
+				ARE.getLog().warn("Task default Src="+getSrc());
+			}
+
+			//队列长度
+			s = root.getChildTextTrim("QueueLen");
+			if (s != null) {
+				setQueueLen(Integer.parseInt(s));
+				ARE.getLog().debug("Task QueueLen="+getQueueLen());
+			}
+			else {
+				ARE.getLog().warn("Task default QueueLen="+getQueueLen());
+			}
+
+			//并发线程个数
+			s = root.getChildTextTrim("ThreadPoolSize");
+			if (s != null) {
+				setThreadPoolSize(Integer.parseInt(s));
+				ARE.getLog().debug("Task ThreadPoolSize="+getThreadPoolSize());
+			}
+			else {
+				ARE.getLog().warn("Task defalut ThreadPoolSize="+getThreadPoolSize());
+			}
+			
+			SqlManager sqlManager = new SqlManager();
+			orgList = sqlManager.getOrgID();
+			actionList =  sqlManager.getAction();
+			for(int a =0;a<orgList.size();a++){
+				ARE.getLog().debug("Task Load 读入任务 机构号:"+orgList.get(a));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+	}
+	
+	public int getQueueLen() {
+		return QueueLen;
+	}
+
+	public void setQueueLen(int queueLen) {
+		QueueLen = queueLen;
+	}
+
+	public int getThreadPoolSize() {
+		return ThreadPoolSize;
+	}
+
+	public void setThreadPoolSize(int threadPoolSize) {
+		ThreadPoolSize = threadPoolSize;
+	}
+	
+	public void setSrc(String src) {
+		this.src = src;
+	}
+
+	public String getSrc() {
+		return src;
+	}
+
+	public ArrayList<String> getOrgList() {
+		return orgList;
+	}
+
+	public void setOrgList(ArrayList<String> orgList) {
+		this.orgList = orgList;
+	}
+
+	public ArrayList<String> getActionList() {
+		return actionList;
+	}
+
+	public void setActionList(ArrayList<String> actionList) {
+		this.actionList = actionList;
+	}
+	
+}

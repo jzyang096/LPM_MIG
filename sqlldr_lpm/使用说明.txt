@@ -1,0 +1,17 @@
+部署到新环境上需修改路径：
+修改文件一：ncb_mig/sqlldr_lpm/bin/conv_file_LPM_G.sh
+Line1:road=当前工程路径/cfg/convLIST
+Line2:data_road=当前工程路径/cfg/datamapping
+Line3:get_road=当前工程路径/in
+Line4:yu_road=当前工程路径/ctl
+Line5:log_road=当前工程路径/log
+Line7：in_road=当前工程路径/out
+若修改文件路径，Line19：
+for table_name in `find $get_road -name "$file_name.*" | cut -d '/' -f 7`
+最后一个7为路径层级，也需修改
+Line63：修改数据库用户/密码@数据库名
+Line71：修改数据库用户/密码@数据库名
+Line80：修改数据库用户/密码@数据库名
+
+修改文件二：ncb_mig/sqlldr_lpm/bin/student_tss.sql
+Line8：修改路径-当前工程路径/ctl

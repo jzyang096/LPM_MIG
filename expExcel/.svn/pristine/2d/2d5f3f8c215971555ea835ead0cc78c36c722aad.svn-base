@@ -1,0 +1,1580 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<!--****************************** 数据自检 ****************************** -->
+	<LPM-RPT-1000>
+		select tableName,
+		columnName,
+		columnValue,
+		BadReason from
+		SQ_Bad_Data
+	</LPM-RPT-1000>
+
+	<LPM-RPT-1001>
+		select tableName,
+		actualRowCount
+		from SQ_Table_Row
+	</LPM-RPT-1001>
+	<!--****************************** 技术核对开始 ****************************** -->
+	<!-- 大中客户记录数核对 -->
+	<LPM-RPT-1010>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on ci.CustomerID=cb.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType ='0110'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-1010>
+
+	<!-- 小微客户记录数核对 -->
+	<LPM-RPT-1020>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on cb.CustomerID=ci.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType ='0120'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-1020>
+
+	<!-- 个人客户记录数核对 -->
+	<LPM-RPT-1030>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on cb.CustomerID=ci.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType like '03%'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-1030>
+
+	<!-- 同业客户记录数核对 -->
+	<LPM-RPT-1040>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on cb.CustomerID=ci.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType like '06%'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-1040>
+
+	<!-- 集团客户记录数核对 -->
+	<LPM-RPT-1050>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on cb.CustomerID=ci.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType like '02%'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-1050>
+
+	<!-- 集团成员记录数核对 -->
+	<LPM-RPT-1060>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		gmr.GroupID,
+		(select groupName from Group_Info where
+		GroupID=gmr.GroupID) as groupName,
+		count(gmr.MemberCustomerID)
+		from
+		Group_Member_Relative gmr
+		left join Customer_Belong cb on
+		cb.CustomerID=gmr.GroupID
+		where cb.BelongAttribute='1'
+		group by
+		cb.Orgid, cb.Userid, gmr.Groupid
+	</LPM-RPT-1060>
+
+	<!-- 业务合同记录数核对 -->
+	<LPM-RPT-1070>
+		select bc.CustomerID,
+		bc.CustomerName,
+		getBusinessName(bc.BusinessType),
+		getItemName('ContractType2',bc.ContractType),
+		count(bc.SerialNo)
+		from
+		Business_Contract bc
+		where 1=1
+		group by bc.CustomerID, bc.CustomerName,
+		bc.BusinessType,bc.ContractType
+	</LPM-RPT-1070>
+
+	<!-- 担保合同记录数核对 -->
+	<LPM-RPT-1080>
+		select gc.CustomerID,
+		ci.CustomerName,
+		getItemName('ContractType', gc.ContractType) as GCContractType,
+		getItemName('VouchType1', gc.GuarantyType) as GCGuarantyType,
+		count(gc.SerialNo)
+		from Guaranty_Contract gc
+		left join Customer_Info ci
+		on gc.CustomerID = ci.CustomerID
+		where 1=1
+		group by gc.CustomerID,
+		ci.CustomerName, gc.ContractType, gc.GuarantyType
+	</LPM-RPT-1080>
+
+	<!-- 押品记录数核对 -->
+	<LPM-RPT-1090>
+		select gi.OwnerID,
+		gi.OwnerName,
+		cci.GuarantyTypeName,
+		count(gi.GuarantyID)
+		from Guaranty_Info gi
+		left join
+		Cms_CollateralType_Info cci on gi.GuarantyType = cci.GuarantyType
+		where 1=1
+		group by gi.OwnerID, gi.OwnerName, cci.GuarantyTypeName
+	</LPM-RPT-1090>
+
+	<!-- 押品权利人总额核对 -->
+	<LPM-RPT-1100>
+		select gi.OwnerID,
+		gi.OwnerName,
+		cci.GuarantyTypeName,
+		getItemName('Currency',gi.EvalCurrency),
+		sum(gi.EvalNetValue) from
+		Guaranty_Info gi
+		left join Cms_CollateralType_Info cci on
+		gi.GuarantyType=cci.GuarantyType
+		where 1=1
+		group by
+		gi.OwnerID,gi.OwnerName,cci.GuarantyTypeName,gi.EvalCurrency
+	</LPM-RPT-1100>
+
+	<!-- 押品保险记录数核对 -->
+	<LPM-RPT-1110>
+		select gi.OwnerID,
+		gi.OwnerName,
+		cii.GuarantyID,
+		cci.GuarantyTypeName,
+		count(cii.SerialNo)
+		from Cms_Insurance_Info cii
+		left join Guaranty_Info gi on cii.GuarantyID = gi.GuarantyID
+		left join
+		Cms_CollateralType_Info cci on cci.GuarantyType = gi.GuarantyType
+		group by gi.OwnerID, gi.OwnerName, cii.GuarantyID,
+		cci.GuarantyTypeName
+	</LPM-RPT-1110>
+
+	<!-- 额度记录数核对 -->
+	<LPM-RPT-1120>
+		select ci.CustomerID,
+		ci.CustomerName,
+		getItemName('OURROLE', ci.CLTypeID),
+		getBusinessName(ci.BusinessType),
+		getItemName('Currency', ci.Currency),
+		count(ci.LineID)
+		from CL_Info ci
+		where
+		ci.Status = '1'
+		group by ci.CustomerID, ci.CustomerName,
+		ci.CLTypeID,
+		ci.BusinessType,
+		ci.Currency
+	</LPM-RPT-1120>
+
+	<!-- 基本授信额度切分记录数核对 -->
+	<LPM-RPT-1130>
+		select ci.CustomerID,
+		ci.CustomerName,
+		cd.ObjectNo,
+		count(cd.SerialNo)
+		from CL_Divide cd
+		left join CL_Info ci on ci.LineID =
+		cd.ObjectNo
+		where cd.ObjectType = 'CLInfo' and ci.Status = '1'
+		group by
+		ci.CustomerID,
+		ci.CustomerName, cd.ObjectNo
+	</LPM-RPT-1130>
+
+	<!-- 集团成员额度记录数核对 -->
+	<LPM-RPT-1140>
+		select gmr.GroupID, gi.GroupName, count(ci.LineID)
+		from
+		Group_Member_Relative gmr
+		left join CL_Info ci
+		on gmr.MemberCustomerID =
+		ci.CustomerID
+		left join Group_Info gi
+		on gmr.GroupID = gi.GroupID
+		where
+		ci.Status = '1'
+		group by gmr.GroupID, gi.GroupName
+	</LPM-RPT-1140>
+
+	<!-- 批量授信额度记录数核对 -->
+	<LPM-RPT-1150>
+		select ab.RelativeBatchSerialno,
+		getItemName('YesNo',
+		ab.IsOccupancy),
+		count(ab.SerialNo)
+		from APPLY_BATCHRELATIVE ab
+		where
+		ab.ObjectType = 'CLInfo'
+		group by ab.RelativeBatchSerialno,
+		ab.IsOccupancy
+	</LPM-RPT-1150>
+
+	<!-- 额度占用核对(国结)-占额层 -->
+	<LPM-RPT-1160>
+		select SerialNo,
+		ObjectNo,
+		RelativeSerialno,
+		getItemName('Currency',Currency),
+		BusinessSum,
+		ExposureSum
+		from CL_OCCUPY_ERROR
+		where Flag='1' and sourceSysNo='ISS'
+	</LPM-RPT-1160>
+
+	<!-- 额度占用核对(国结)-借据层 -->
+	<LPM-RPT-1161>
+		select SerialNo,
+		ObjectNo,
+		RelativeSerialno,
+		getItemName('Currency',Currency),
+		BusinessSum,
+		ExposureSum
+		from CL_OCCUPY_ERROR
+		where Flag='2' and sourceSysNo='ISS'
+	</LPM-RPT-1161>
+
+	<!-- 额度占用核对(供应链)-占额层 -->
+	<LPM-RPT-1170>
+		select SerialNo,
+		ObjectNo,
+		RelativeSerialno,
+		getItemName('Currency',Currency),
+		BusinessSum,
+		ExposureSum
+		from CL_OCCUPY_ERROR
+		where Flag='1' and sourceSysNo='SCF'
+	</LPM-RPT-1170>
+
+	<!-- 额度占用核对(供应链)-借据层 -->
+	<LPM-RPT-1171>
+		select SerialNo,
+		ObjectNo,
+		RelativeSerialno,
+		getItemName('Currency',Currency),
+		BusinessSum,
+		ExposureSum
+		from CL_OCCUPY_ERROR
+		where Flag='2' and sourceSysNo='SCF'
+	</LPM-RPT-1171>
+
+	<!-- 额度占用核对(票据)-占额层 -->
+	<LPM-RPT-1180>
+		select SerialNo,
+		ObjectNo,
+		RelativeSerialno,
+		getItemName('Currency',Currency),
+		BusinessSum,
+		ExposureSum
+		from CL_OCCUPY_ERROR
+		where Flag='1' and sourceSysNo='CDS'
+	</LPM-RPT-1180>
+
+	<!-- 额度占用核对(票据)-借据层 -->
+	<LPM-RPT-1181>
+		select SerialNo,
+		ObjectNo,
+		RelativeSerialno,
+		getItemName('Currency',Currency),
+		BusinessSum,
+		ExposureSum
+		from CL_OCCUPY_ERROR
+		where Flag='2' and sourceSysNo='CDS'
+	</LPM-RPT-1181>
+
+	<!-- 额度占用核对(核心-一般贷款)-占额层 -->
+	<LPM-RPT-1190>
+		select SerialNo,
+		ObjectNo,
+		RelativeSerialno,
+		getItemName('Currency',Currency),
+		BusinessSum,
+		ExposureSum
+		from CL_OCCUPY_ERROR
+		where Flag='1' and sourceSysNo='ALS'
+	</LPM-RPT-1190>
+
+	<!-- 额度占用核对(核心-一般贷款)-借据层 -->
+	<LPM-RPT-1191>
+		select SerialNo,
+		ObjectNo,
+		RelativeSerialno,
+		getItemName('Currency',Currency),
+		BusinessSum,
+		ExposureSum
+		from CL_OCCUPY_ERROR
+		where Flag='2' and sourceSysNo='ALS'
+	</LPM-RPT-1191>
+
+	<!-- 综合授信额度金额校验 -->
+	<LPM-RPT-1200>
+		select ce.CustomerID,
+		ce.CustomerName,
+		ce.LineID,
+		getItemName('OURROLE', ce.CLTypeID),
+		getBusinessName(ce.BusinessType),
+		getItemName('Currency', ce.Currency),
+		ce.LineSum1,
+		ce.LineSum2,
+		ce.parentLineID
+		from SQ_CL_ERROR ce where ce.Flag = '1'
+	</LPM-RPT-1200>
+
+	<!-- 基本授信切分额度金额校验 -->
+	<LPM-RPT-1210>
+		select ce.CustomerID,
+		ce.CustomerName,
+		ce.LineID,
+		getItemName('OURROLE', ce.CLTypeID),
+		getBusinessName(ce.BusinessType),
+		getItemName('Currency', ce.Currency),
+		ce.LineSum1,
+		ce.LineSum2,
+		ce.parentLineID
+		from SQ_CL_ERROR ce where ce.Flag = '2'
+	</LPM-RPT-1210>
+
+	<!-- 同业额度金额校验 -->
+	<LPM-RPT-1220>
+		select ce.CustomerID,
+		ce.CustomerName,
+		ce.LineID,
+		getItemName('OURROLE', ce.CLTypeID),
+		getBusinessName(ce.BusinessType),
+		getItemName('Currency', ce.Currency),
+		ce.LineSum1,
+		ce.LineSum2,
+		ce.parentLineID
+		from SQ_CL_ERROR ce where ce.Flag = '3'
+	</LPM-RPT-1220>
+
+	<!-- 批量授信成员占额核对 -->
+	<LPM-RPT-1230>
+	select SerialNo,
+		ObjectNo,
+		RelativeSerialno,
+		getItemName('Currency',Currency),
+		BusinessSum,
+		ExposureSum
+		from CL_OCCUPY_ERROR
+		where Flag='3'
+	</LPM-RPT-1230>
+
+	<!-- 借据记录数(一般贷款) -->
+	<LPM-RPT-1240>
+		select
+		d.MFCustomerID,
+		d.CustomerID,
+		d.CustomerName,
+		d.RelativeSerialno2,
+		getBusinessName(d.BusinessType),
+		count(d.SerialNo)
+		from
+		Business_Duebill d
+		where 1=1
+		group by
+		d.MFCustomerID,d.CustomerID,d.CustomerName,d.RelativeSerialno2,d.BusinessType
+	</LPM-RPT-1240>
+
+	<!-- 借据记录数(票据) -->
+	<LPM-RPT-1250>
+		select
+		d.MFCustomerID,
+		d.CustomerID,
+		d.CustomerName,
+		d.RelativeSerialno2,
+		getBusinessName(d.BusinessType),count(d.SerialNo)
+		from
+		Business_Duebill d
+		where 1=1
+		group by
+		d.MFCustomerID,d.CustomerID,d.CustomerName,d.RelativeSerialno2,d.BusinessType
+	</LPM-RPT-1250>
+
+	<!-- 借据记录数(国结) -->
+	<LPM-RPT-1260>
+		select
+		d.MFCustomerID,
+		d.CustomerID,
+		d.CustomerName,
+		d.RelativeSerialno2,
+		getBusinessName(d.BusinessType),
+		count(d.SerialNo)
+		from Business_Duebill d
+		where 1=1
+		group by
+		d.MFCustomerID,d.CustomerID,d.CustomerName,d.RelativeSerialno2,d.BusinessType
+	</LPM-RPT-1260>
+
+	<!-- 借据记录数(供应链) -->
+	<LPM-RPT-1270>
+		select d.MFCustomerID,
+		d.CustomerID,
+		d.CustomerName,
+		d.RelativeSerialno2,
+		getBusinessName(d.BusinessType),
+		count(d.SerialNo)
+		from
+		Business_Duebill d
+		where 1=1
+		group by
+		d.MFCustomerID,d.CustomerID,d.CustomerName,d.RelativeSerialno2,d.BusinessType
+	</LPM-RPT-1270>
+
+	<!-- 借据总余额核对(一般贷款) <>需转译 -->
+	<LPM-RPT-1280>
+		select d.SerialNo,
+		d.CustomerID,
+		d.CustomerName,
+		getBusinessName(d.BusinessType),
+		getItemName('Currency',d.BusinessCurrency),
+		d.BusinessSum,
+		d.PutOutDate,
+		d.Maturity,
+		d.ActualMaturity,
+		d.BusinessRate,
+		d.Balance,
+		d.NormalBalance,
+		d.OverdueBalance,
+		d.DullBalance,
+		d.BadBalance
+		from Business_Duebill d
+		where d.Balance
+		&lt;&gt;
+		(d.NormalBalance + d.OverdueBalance + d.DullBalance +
+		d.BadBalance)
+	</LPM-RPT-1280>
+
+	<!-- 借据总余额核对(票据) -->
+	<LPM-RPT-1290>
+		select d.SerialNo,
+		d.CustomerID,
+		d.CustomerName,
+		getBusinessName(d.BusinessType),
+		getItemName('Currency',d.BusinessCurrency),
+		d.BusinessSum,
+		d.PutOutDate,
+		d.Maturity,
+		d.ActualMaturity,
+		d.BusinessRate,
+		d.Balance,
+		d.NormalBalance,
+		d.OverdueBalance,
+		d.DullBalance,
+		d.BadBalance
+		from Business_Duebill d
+		where d.Balance
+		&lt;&gt;
+		(d.NormalBalance + d.OverdueBalance + d.DullBalance +
+		d.BadBalance)
+	</LPM-RPT-1290>
+
+	<!-- 借据总余额核对(国结) -->
+	<LPM-RPT-1300>
+		select d.SerialNo,
+		d.CustomerID,
+		d.CustomerName,
+		getBusinessName(d.BusinessType),
+		getItemName('Currency',d.BusinessCurrency),
+		d.BusinessSum,
+		d.PutOutDate,
+		d.Maturity,
+		d.ActualMaturity,
+		d.BusinessRate,
+		d.Balance,
+		d.NormalBalance,
+		d.OverdueBalance,
+		d.DullBalance,
+		d.BadBalance
+		from Business_Duebill d
+		where d.Balance
+		&lt;&gt;
+		(d.NormalBalance + d.OverdueBalance + d.DullBalance +
+		d.BadBalance)
+	</LPM-RPT-1300>
+
+	<!-- 借据总余额核对(供应链) -->
+	<LPM-RPT-1310>
+		select d.SerialNo,
+		d.CustomerID,
+		d.CustomerName,
+		getBusinessName(d.BusinessType),
+		getItemName('Currency',d.BusinessCurrency),
+		d.BusinessSum,
+		d.PutOutDate,
+		d.Maturity,
+		d.ActualMaturity,
+		d.BusinessRate,
+		d.Balance,
+		d.NormalBalance,
+		d.OverdueBalance,
+		d.DullBalance,
+		d.BadBalance
+		from Business_Duebill d
+		where d.Balance
+		&lt;&gt; (d.NormalBalance + d.OverdueBalance + d.DullBalance +
+		d.BadBalance)
+	</LPM-RPT-1310>
+
+	<!-- 客户主办客户经理异常报表 -->
+	<LPM-RPT-1320>
+		select cb.OrgID,
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CustomerType', ci.CustomerType)
+		from
+		Customer_Info ci
+		left join Customer_Belong cb
+		on ci.CustomerID =
+		cb.CustomerID
+		where cb.UserID is null
+		or cb.OrgID is null
+	</LPM-RPT-1320>
+	<!--****************************** 技术核对结束 ****************************** -->
+
+	<!--****************************** 业务核对开始 ****************************** -->
+	<!-- 客户(大中企业)信息汇总表 -->
+	<LPM-RPT-2010>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from Customer_Info ci
+		left join Customer_Belong cb
+		on ci.CustomerID=cb.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType ='0110'
+	</LPM-RPT-2010>
+
+	<!-- 客户(大中企业)信息明细表 -->
+	<LPM-RPT-2020>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CertType',ci.CertType),
+		ci.CertID,
+		ei.LoanCardNo,
+		getItemName('CustomerType',ci.CustomerType),
+		getItemName('OrgType',ei.OrgType),
+		getItemName('Scope',ei.Scope),
+		getItemName('IndustryType',ei.IndustryType),
+		getItemName('YesNo',ei.ECGroupFlag),
+		ei.EntEvaluateResult,
+		ci.ClassifyResult
+		from Customer_Info ci
+		left join Customer_Belong cb on
+		ci.CustomerID=cb.CustomerID
+		left join Ent_Info ei on
+		ci.CustomerID=ei.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType='0110'
+	</LPM-RPT-2020>
+
+	<!-- 客户(小微企业)信息汇总表 -->
+	<LPM-RPT-2030>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from
+		Customer_Info ci
+		left join Customer_Belong cb
+		on
+		ci.CustomerID=cb.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType ='0120'
+	</LPM-RPT-2030>
+
+	<!-- 客户(小微企业)信息明细表 -->
+	<LPM-RPT-2040>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CertType',ci.CertType),
+		ci.CertID,
+		ei.LoanCardNo,
+		getItemName('CustomerType',ci.CustomerType),
+		getItemName('OrgType',ei.OrgType),
+		getItemName('Scope',ei.Scope),
+		getItemName('IndustryType',ei.IndustryType),
+		getItemName('YesNo',ei.ECGroupFlag),
+		ei.EntEvaluateResult,
+		ci.ClassifyResult
+		from Customer_Info ci
+		left join Customer_Belong cb on
+		ci.CustomerID=cb.CustomerID
+		left join Ent_Info ei on
+		ci.CustomerID=ei.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType='0120'
+	</LPM-RPT-2040>
+
+	<!-- 客户(个人)信息汇总表 -->
+	<LPM-RPT-2050>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from
+		Customer_Info ci
+		left join Customer_Belong cb
+		on
+		ci.CustomerID=cb.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType like '03%'
+	</LPM-RPT-2050>
+
+	<!-- 客户(个人)信息明细表 -->
+	<LPM-RPT-2060>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CertType',ci.CertType),
+		ci.CertID,
+		getItemName('Sex',ii.Sex),
+		ii.BirthDay,
+		getItemName('Marriage',ii.Marriage),
+		getItemName('EducationExperience',ii.EduExperience),
+		getItemName('EducationDegree',ii.EduDegree),
+		getItemName('FamilyStatus',ii.FamilyStatus),
+		ii.MobileTelephone,
+		getItemName('Occupation',ii.Occupation),
+		ii.WorkCorp,
+		getItemName('IndustryType',ii.UnitKind),
+		ii.CreditLevel
+		from
+		Customer_Info ci
+		left join Customer_Belong cb on
+		ci.CustomerID=cb.CustomerID
+		left join Ind_Info ii on
+		ci.CustomerID=ii.CustomerID
+		where cb.BelongAttribute='1'
+		and
+		ci.CustomerType like '03%'
+	</LPM-RPT-2060>
+
+	<!-- 客户(同业)信息汇总表 -->
+	<LPM-RPT-2070>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from
+		Customer_Info ci
+		left join Customer_Belong cb
+		on
+		ci.CustomerID=cb.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType like '06%'
+	</LPM-RPT-2070>
+
+	<!-- 客户(同业)信息明细表 -->
+	<LPM-RPT-2080>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CertType',ci.CertType),
+		ci.CertID,
+		getItemName('OrgType',ei.OrgType),
+		getItemName('Scope',ei.Scope),
+		getItemName('IndustryType',ei.IndustryType),
+		(select groupName from
+		Group_Info where GroupID=gmr.GroupID),
+		ei.EntEvaluateResult
+		from
+		Customer_Info ci
+		left join Customer_Belong cb on
+		ci.CustomerID=cb.CustomerID
+		left join Ent_Info ei on
+		ci.CustomerID=ei.CustomerID
+		left join Group_Member_Relative gmr on
+		ci.CustomerID=gmr.MemberCustomerID
+		where cb.BelongAttribute='1'
+		and
+		ci.CustomerType like '06%'
+	</LPM-RPT-2080>
+
+	<!-- 客户(集团)信息汇总表 -->
+	<LPM-RPT-2090>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(ci.CustomerID) from
+		Customer_Info ci
+		left join Customer_Belong cb
+		on
+		ci.CustomerID=cb.CustomerID
+		where cb.BelongAttribute='1' and
+		ci.CustomerType like '02%'
+	</LPM-RPT-2090>
+
+	<!-- 客户(集团)信息明细表 -->
+	<LPM-RPT-2100>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.CustomerID,
+		gi.GroupHID,
+		gi.GroupName,
+		gi.KeyMemberCustomerID,
+		(select
+		customerName from Customer_Info where CustomerID =
+		gi.KeyMemberCustomerID),
+		getItemName('YesNo',gi.FinanceFocus)
+		from
+		Customer_Info ci
+		left join Customer_Belong cb on
+		ci.CustomerID=cb.CustomerID
+		left join Group_Info gi on
+		ci.CustomerID=gi.Groupid
+		where cb.BelongAttribute='1'
+		and
+		ci.CustomerType like '02%'
+	</LPM-RPT-2100>
+
+	<!-- 客户(集团成员)信息汇总表 -->
+	<LPM-RPT-2110>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.CustomerID,
+		ci.CustomerName,
+		count(gmr.MemberCustomerID)
+		from
+		Customer_Info ci
+		left join Customer_Belong cb on
+		ci.CustomerID=cb.CustomerID
+		left join Group_Member_Relative gmr on
+		ci.CustomerID=gmr.GroupID
+		where cb.BelongAttribute='1'
+		and
+		ci.CustomerType like '02%'
+	</LPM-RPT-2110>
+
+	<!-- 客户(集团成员)信息明细表 -->
+	<LPM-RPT-2120>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		gmr.GroupID,
+		(select groupName
+		from Group_Info where
+		GroupID=gmr.GroupID),
+		gmr.MemberCustomerID,
+		gmr.MemberName,
+		getItemName('MemberType',gmr.MemberType),
+		getItemName('CertType',ci.CertType),
+		ci.CertID
+		from
+		Group_Member_Relative gmr
+		left join Customer_Belong cb on
+		gmr.MemberCustomerID=cb.CustomerID
+		left join Customer_Info ci on
+		gmr.MemberCustomerID=ci.CustomerID
+		where cb.Belongattribute='1'
+	</LPM-RPT-2120>
+
+	<!-- 额度信息汇总表 -->
+	<LPM-RPT-2130>
+		select cc.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('OURROLE',ci.CLTypeID),
+		getBusinessName(ci.BusinessType),
+		count(ci.LineID)
+		from CL_Info ci
+		left join Customer_Info cc on
+		ci.CustomerID=cc.CustomerID
+		where 1=1
+	</LPM-RPT-2130>
+
+	<!-- 额度信息明细表 -->
+	<LPM-RPT-2140>
+		select cc.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		ci.LineID,
+		getItemName('OURROLE',ci.CLTypeID),
+		getBusinessName(ci.BusinessType),
+		getItemName('YesNo',ci.Rotative),
+		getItemName('Status',ci.Status),
+		getItemName('FreezeFlag',ci.FreezeFlag),
+		getItemName('Currency',ci.Currency),
+		ci.LineSum1,
+		ci.LineSum2,
+		ci.EffectBusinesssum,
+		ci.EffectExposuresum,
+		ci.FreezeBusinesssum,
+		ci.FreezeExposuresum,
+		ci.UsedBusinesssum,
+		ci.UsedExposuresum,
+		ci.BeginDate,
+		ci.EndDate,
+		ci.TermMonth,
+		ci.AuditDate from CL_Info ci
+		left
+		join Customer_Info cc on ci.CustomerID=cc.CustomerID
+		where 1=1
+	</LPM-RPT-2140>
+
+	<!-- 基本授信额度切分汇总表 -->
+	<LPM-RPT-2150>
+		select cc.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		cd.ObjectNo,
+		count(cd.SerialNo) from CL_Divide cd
+		left join CL_Info ci
+		on cd.ObjectNo=ci.LineID
+		left join Customer_Info cc on
+		ci.CustomerID=cc.CustomerID
+		where cd.ObjectType='CLInfo' and
+		ci.CLTypeID = '010'
+	</LPM-RPT-2150>
+
+	<!-- 基本授信额度切分明细表 -->
+	<LPM-RPT-2160>
+		select cc.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		ci.LineID,
+		cd.SerialNo,
+		getBusinessName(cd.DivideCode),
+		getItemName('Currency',cd.Currency),
+		cd.BusinessSum,
+		cd.ExposureSum
+		from
+		CL_Divide cd
+		left join CL_Info ci on cd.ObjectNo=ci.LineID
+		left join
+		Customer_Info cc on ci.CustomerID=cc.CustomerID
+		where
+		cd.ObjectType='CLInfo' and ci.CLTypeID = '010'
+	</LPM-RPT-2160>
+
+	<!-- 同业额度汇总表 -->
+	<LPM-RPT-2170>
+		select cc.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('OURROLE',ci.CLTypeID),
+		getBusinessName(ci.BusinessType),
+		count(ci.LineID) from CL_Info ci
+		left join Customer_Info cc on
+		ci.CustomerID=cc.CustomerID
+		where ci.CLTypeID='080'
+	</LPM-RPT-2170>
+
+	<!-- 同业额度明细表 -->
+	<LPM-RPT-2180>
+		select cc.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		ci.LineID,
+		ci.ParentLineID,
+		getItemName('OURROLE',ci.CLTypeID),
+		getItemName('Currency',ci.Currency),
+		ci.LineSum1,
+		ci.LineSum2,
+		getBusinessName(ci.BusinessType),
+		getItemName('YesNo',ci.Rotative),
+		getItemName('Status',ci.Status),
+		getItemName('FreezeFlag',ci.FreezeFlag),
+		ci.EffectBusinesssum,
+		ci.EffectExposuresum,
+		ci.FreezeBusinesssum,
+		ci.FreezeExposuresum,
+		ci.UsedBusinesssum,
+		ci.UsedExposuresum,
+		ci.BeginDate,
+		ci.EndDate,
+		ci.TermMonth,
+		ci.AuditDate from CL_Info ci
+		left join Customer_Info cc on
+		ci.CustomerID=cc.CustomerID
+		where ci.CLTypeID in ('080','130')
+	</LPM-RPT-2180>
+
+	<!-- 批量额度关联表 -->
+	<LPM-RPT-2190>
+		select ab.RelativeBatchSerialNo,
+		getItemName('Currency',ci.Currency),
+		ci.LineSum1,
+		ci.LineSum2,
+		ab.SerialNo,
+		getItemName('Currency',cc.Currency),
+		cc.LineSum1,
+		cc.LineSum2 from Apply_BatchRelative ab
+		left join CL_Info ci on
+		ab.RelativeBatchSerialNo=ci.LineID
+		left join CL_Info cc on
+		ab.SerialNo=cc.LineID
+		where ab.ObjectType='CLInfo'
+	</LPM-RPT-2190>
+
+	<!-- 额度占用汇总表(国结) -->
+	<LPM-RPT-2200>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		getBusinessName(bd.BusinessType),
+		getItemName('Currency',co.Currency),
+		sum(co.BusinessSum),
+		sum(co.ExposureSum) from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='ISS'
+	</LPM-RPT-2200>
+
+	<!-- 额度占用明细表(国结) -->
+	<LPM-RPT-2210>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		co.RelativeSerialNo,
+		getItemName('Currency',co.Currency),
+		co.BusinessSum,
+		co.ExposureSum,
+		co.ObjectNo,
+		bd.BusinessCurrency,
+		bd.BusinessType,
+		bd.BusinessSum,
+		bd.Balance from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='ISS'
+	</LPM-RPT-2210>
+
+	<!-- 额度占用汇总表(供应链) -->
+	<LPM-RPT-2220>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		getBusinessName(bd.BusinessType),
+		getItemName('Currency',co.Currency),
+		sum(co.BusinessSum),
+		sum(co.ExposureSum) from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='SCF'
+	</LPM-RPT-2220>
+
+	<!-- 额度占用明细表(供应链) -->
+	<LPM-RPT-2230>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		co.RelativeSerialNo,
+		getItemName('Currency',co.Currency),
+		co.BusinessSum,
+		co.ExposureSum,
+		co.ObjectNo,
+		bd.BusinessCurrency,
+		bd.BusinessType,
+		bd.BusinessSum,
+		bd.Balance from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='SCF'
+	</LPM-RPT-2230>
+
+	<!-- 额度占用汇总表(票据) -->
+	<LPM-RPT-2240>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		getBusinessName(bd.BusinessType),
+		getItemName('Currency',co.Currency),
+		sum(co.BusinessSum),
+		sum(co.ExposureSum) from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='CDS'
+	</LPM-RPT-2240>
+
+	<!-- 额度占用明细表(票据) -->
+	<LPM-RPT-2250>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		co.RelativeSerialNo,
+		getItemName('Currency',co.Currency),
+		co.BusinessSum,
+		co.ExposureSum,
+		co.ObjectNo,
+		bd.BusinessCurrency,
+		bd.BusinessType,
+		bd.BusinessSum,
+		bd.Balance from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='CDS'
+	</LPM-RPT-2250>
+
+	<!-- 额度占用汇总表(核心-一般贷款) -->
+	<LPM-RPT-2260>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		getBusinessName(bd.BusinessType),
+		getItemName('Currency',co.Currency),
+		sum(co.BusinessSum),
+		sum(co.ExposureSum) from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='ALS'
+	</LPM-RPT-2260>
+
+	<!-- 额度占用明细表(核心-一般贷款) -->
+	<LPM-RPT-2270>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		co.RelativeSerialNo,
+		getItemName('Currency',co.Currency),
+		co.BusinessSum,
+		co.ExposureSum,
+		co.ObjectNo,
+		bd.BusinessCurrency,
+		bd.BusinessType,
+		bd.BusinessSum,
+		bd.Balance from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='ALS'
+	</LPM-RPT-2270>
+
+	<!-- 额度占用明细表(代客资金) -->
+	<LPM-RPT-2280>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		co.RelativeSerialNo,
+		getItemName('Currency',co.Currency),
+		co.BusinessSum,
+		co.ExposureSum,
+		co.ObjectNo,
+		bd.BusinessCurrency,
+		bd.BusinessType,
+		bd.BusinessSum,
+		bd.Balance from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='STS'
+	</LPM-RPT-2280>
+
+	<!-- 额度占用明细表(核心-法人透支) -->
+	<LPM-RPT-2290>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		co.RelativeSerialNo,
+		getItemName('Currency',co.Currency),
+		co.BusinessSum,
+		co.ExposureSum,
+		co.ObjectNo,
+		bd.BusinessCurrency,
+		bd.BusinessType,
+		bd.BusinessSum,
+		bd.Balance from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='ALS'
+		and bd.BusinessType='108510'
+	</LPM-RPT-2290>
+
+	<!-- 额度占用明细表(理财资管) -->
+	<LPM-RPT-2291>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		co.RelativeSerialNo,
+		getItemName('Currency',co.Currency),
+		co.BusinessSum,
+		co.ExposureSum,
+		co.ObjectNo,
+		bd.BusinessCurrency,
+		bd.BusinessType,
+		bd.BusinessSum,
+		bd.Balance from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='FFM'
+	</LPM-RPT-2291>
+
+	<!-- 额度占用明细表(代客资金) -->
+	<LPM-RPT-2292>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		co.RelativeSerialNo,
+		getItemName('Currency',co.Currency),
+		co.BusinessSum,
+		co.ExposureSum,
+		co.ObjectNo,
+		bd.BusinessCurrency,
+		bd.BusinessType,
+		bd.BusinessSum,
+		bd.Balance from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='STS'
+	</LPM-RPT-2292>
+
+	<!-- 额度占用明细表(资金交易) -->
+	<LPM-RPT-2300>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		co.RelativeSerialNo,
+		getItemName('Currency',co.Currency),
+		co.BusinessSum,
+		co.ExposureSum,
+		co.ObjectNo,
+		bd.BusinessCurrency,
+		bd.BusinessType,
+		bd.BusinessSum,
+		bd.Balance from CL_Occupy co
+		left join
+		Business_Duebill bd on co.ObjectNo=bd.SerialNo
+		where
+		co.ObjectType='PutOutApply' and co.SourceSysNo='FTS'
+	</LPM-RPT-2300>
+
+	<!-- 担保合同汇总表 -->
+	<LPM-RPT-2310>
+		select ci.MFCustomerID,
+		gc.CustomerID,
+		ci.CustomerName,
+		getItemName('ContractType',gc.ContractType),
+		getItemName('VouchType1',gc.GuarantyType),
+		count(gc.SerialNo) from
+		Guaranty_Contract gc
+		left join Customer_Info ci on
+		gc.CustomerID=ci.CustomerID
+		where 1=1
+	</LPM-RPT-2310>
+
+	<!-- 担保合同(保证)明细表 -->
+	<LPM-RPT-2320>
+		select ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		cr.SerialNo,
+		gc.SerialNo,
+		getItemName('ContractType',gc.ContractType),
+		getItemName('VouchType1',gc.GuarantyType),
+		getItemName('AssureStyle',gc.GuaranteeForm),
+		gc.GuarantorID,
+		gc.GuarantorName,
+		gc.SignDate,
+		gc.BeginDate,
+		gc.EndDate,
+		getItemName('Currency',gc.GuarantyCurrency),
+		gc.GuarantyValue
+		from
+		Guaranty_Contract gc
+		left join Customer_Info ci on
+		gc.CustomerID=ci.CustomerID
+		left join Contract_Relative cr on
+		gc.SerialNo=cr.ObjectNo
+		where gc.GuarantyType='010' and
+		cr.ObjectType='GuarantyContract'
+	</LPM-RPT-2320>
+
+	<!-- 担保合同(抵质押)明细表 -->
+	<LPM-RPT-2330>
+		select ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		cr.SerialNo,
+		gc.SerialNo,
+		getItemName('ContractType',gc.ContractType),
+		getItemName('VouchType1',gc.GuarantyType),
+		gc.GuarantorID,
+		gc.GuarantorName,
+		gc.SignDate,
+		gc.BeginDate,
+		gc.EndDate,
+		getItemName('Currency',gc.GuarantyCurrency),
+		gc.GuarantyValue
+		from
+		Guaranty_Contract gc
+		left join Customer_Info ci on
+		gc.CustomerID=ci.CustomerID
+		left join Contract_Relative cr on
+		gc.SerialNo=cr.ObjectNo
+		where gc.GuarantyType in ('020','040') and
+		cr.ObjectType='GuarantyContract'
+	</LPM-RPT-2330>
+
+	<!-- 押品信息汇总表 -->
+	<LPM-RPT-2340>
+		select gi.OwnerID,
+		gi.OwnerName,
+		cci.GuarantyTypeName,
+		count(gi.GuarantyID) from Guaranty_Info gi
+		left join
+		Cms_CollateralType_Info cci on gi.GuarantyType=cci.GuarantyType
+		where
+		1=1
+	</LPM-RPT-2340>
+
+	<!-- 押品信息明细表 -->
+	<LPM-RPT-2350>
+		select gr.ContractNo,
+		gi.GuarantyID,
+		cci.GuarantyTypeName,
+		gi.OwnerID,
+		gi.OwnerName,
+		getItemName('SecurityType',gi.OwnerType),
+		getItemName('CertType',gi.CertType),
+		gi.CertID,
+		gi.GuarantyRightID,
+		getItemName('Currency',gi.EvalCurrency),
+		gi.EvalNetValue,
+		gi.GuarantyRate || '%'
+		from Guaranty_Info gi
+		left join
+		Cms_CollateralType_Info cci on gi.GuarantyType=cci.GuarantyType
+		left
+		join Guaranty_Relative gr on gi.GuarantyID=gr.GuarantyID
+		where 1=1
+	</LPM-RPT-2350>
+
+	<!-- 押品权利人总额汇总表 -->
+	<LPM-RPT-2360>
+		select gi.OwnerID,
+		gi.OwnerName,
+		cci.GuarantyTypeName,
+		getItemName('Currency',gi.EvalCurrency),
+		sum(gi.EvalNetValue) from
+		Guaranty_Info gi
+		left join Cms_CollateralType_Info cci on
+		gi.GuarantyType=cci.GuarantyType
+		where 1=1
+	</LPM-RPT-2360>
+
+	<!-- 押品保险汇总表 -->
+	<LPM-RPT-2370>
+		select ci.MFCustomerID,
+		gci.CustomerID,
+		gci.CustomerName,
+		gci.GuarantyTypeName,
+		gci.GuarantyID,
+		count(gci.GuaranteeslipNo)
+		from
+		Guaranty_Cms_Info gci
+		left join Customer_Info ci
+		on gci.CustomerID =
+		ci.CustomerID
+		where 1 = 1
+	</LPM-RPT-2370>
+
+	<!-- 押品保险明细表 -->
+	<LPM-RPT-2380>
+		select ci.MFCustomerID,
+		gci.CustomerID,
+		gci.CustomerName,
+		gci.OwnerID,
+		gci.OwnerName,
+		gci.GuarantyTypeName,
+		gci.GuarantyID,
+		gci.GuaranteeslipNo,
+		gci.StartDate,
+		gci.EndDate,
+		gci.Insuranceamt,
+		gci.InsurerNo,
+		gci.InsurerName,
+		getItemName('InsurerStatus',gci.InsurerStatus),
+		gci.Beneficiary,
+		gci.Insurance,
+		gci.InsuranceRate,
+		gci.InsuranceName
+		from
+		Guaranty_Cms_Info gci
+		left join Customer_Info ci
+		on gci.CustomerID =
+		ci.CustomerID
+		where 1 = 1
+	</LPM-RPT-2380>
+
+	<!-- 借据信息汇总表(核心-一般贷款) -->
+	<LPM-RPT-2390>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		bd.RelativeSerialno2,
+		getBusinessName(bd.BusinessType),
+		count(bd.SerialNo) from Business_Duebill bd
+		where bd.Flag3='ALS'
+	</LPM-RPT-2390>
+
+	<!-- 借据信息明细表(核心-一般贷款) -->
+	<LPM-RPT-2400>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		bd.RelativeSerialno2,
+		getBusinessName(bd.BusinessType),
+		getItemName('Currency',bd.BusinessCurrency),
+		bd.BusinessSum,
+		bd.PutOutDate,
+		bd.Maturity,
+		bd.ActualMaturity,
+		bd.BusinessRate,
+		bd.Balance,
+		bd.NormalBalance,
+		bd.OverdueBalance,
+		bd.DullBalance,
+		bd.BadBalance,
+		bd.FineBalance1,
+		bd.FineBalance2,
+		bd.OverdueDays from
+		Business_Duebill bd
+		where bd.Flag3='ALS'
+	</LPM-RPT-2400>
+
+	<!-- 借据信息汇总表(票据) -->
+	<LPM-RPT-2410>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		bd.RelativeSerialno2,
+		getBusinessName(bd.BusinessType),
+		count(bd.SerialNo) from Business_Duebill bd
+		where bd.Flag3='CDS'
+	</LPM-RPT-2410>
+
+	<!-- 借据信息明细表(票据) -->
+	<LPM-RPT-2420>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		bd.RelativeSerialno2,
+		getBusinessName(bd.BusinessType),
+		getItemName('Currency',bd.BusinessCurrency),
+		bd.BusinessSum,
+		bd.PutOutDate,
+		bd.Maturity,
+		bd.ActualMaturity,
+		bd.BusinessRate,
+		bd.Balance,
+		bd.NormalBalance,
+		bd.OverdueBalance,
+		bd.DullBalance,
+		bd.BadBalance,
+		bd.FineBalance1,
+		bd.FineBalance2,
+		bd.OverdueDays from
+		Business_Duebill bd
+		where bd.Flag3='CDS'
+	</LPM-RPT-2420>
+
+	<!-- 借据信息汇总表(国结) -->
+	<LPM-RPT-2430>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		bd.RelativeSerialno2,
+		getBusinessName(bd.BusinessType),
+		count(bd.SerialNo) from Business_Duebill bd
+		where bd.Flag3='ISS'
+	</LPM-RPT-2430>
+
+	<!-- 借据信息明细表(国结) -->
+	<LPM-RPT-2440>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		bd.RelativeSerialno2,
+		getBusinessName(bd.BusinessType),
+		getItemName('Currency',bd.BusinessCurrency),
+		bd.BusinessSum,
+		bd.PutOutDate,
+		bd.Maturity,
+		bd.ActualMaturity,
+		bd.BusinessRate,
+		bd.Balance,
+		bd.NormalBalance,
+		bd.OverdueBalance,
+		bd.DullBalance,
+		bd.BadBalance,
+		bd.FineBalance1,
+		bd.FineBalance2,
+		bd.OverdueDays from
+		Business_Duebill bd
+		where bd.Flag3='ISS'
+	</LPM-RPT-2440>
+
+	<!-- 借据信息汇总表(供应链) -->
+	<LPM-RPT-2450>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		bd.RelativeSerialno2,
+		getBusinessName(bd.BusinessType),
+		count(bd.SerialNo) from Business_Duebill bd
+		where bd.Flag3='SCF'
+	</LPM-RPT-2450>
+
+	<!-- 借据信息明细表(供应链) -->
+	<LPM-RPT-2460>
+		select bd.MFCustomerID,
+		bd.CustomerID,
+		bd.CustomerName,
+		bd.RelativeSerialno2,
+		getBusinessName(bd.BusinessType),
+		getItemName('Currency',bd.BusinessCurrency),
+		bd.BusinessSum,
+		bd.PutOutDate,
+		bd.Maturity,
+		bd.ActualMaturity,
+		bd.BusinessRate,
+		bd.Balance,
+		bd.NormalBalance,
+		bd.OverdueBalance,
+		bd.DullBalance,
+		bd.BadBalance,
+		bd.FineBalance1,
+		bd.FineBalance2,
+		bd.OverdueDays from
+		Business_Duebill bd
+		where bd.Flag3='SCF'
+	</LPM-RPT-2460>
+
+	<!-- 大中客户所属(异常报表) -->
+	<LPM-RPT-2470>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CustomerType',ci.CustomerType)
+		from Customer_Info ci
+		left
+		join Customer_Belong cb on ci.CustomerID=cb.CustomerID
+		where
+		cb.BelongAttribute='1' and ci.CustomerType='0110' and
+		(cb.OrgID is null
+		or cb.UserID is null)
+	</LPM-RPT-2470>
+
+	<!-- 小微客户所属(异常报表) -->
+	<LPM-RPT-2480>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CustomerType',ci.CustomerType)
+		from Customer_Info ci
+		left
+		join Customer_Belong cb on ci.CustomerID=cb.CustomerID
+		where
+		cb.BelongAttribute='1' and ci.CustomerType='0120' and
+		(cb.OrgID is null
+		or cb.UserID is null)
+	</LPM-RPT-2480>
+
+	<!-- 个人客户所属(异常报表) -->
+	<LPM-RPT-2490>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CustomerType',ci.CustomerType)
+		from Customer_Info ci
+		left
+		join Customer_Belong cb on ci.CustomerID=cb.CustomerID
+		where
+		cb.BelongAttribute='1' and ci.CustomerType like '03%' and
+		(cb.OrgID is
+		null or cb.UserID is null)
+	</LPM-RPT-2490>
+
+	<!-- 同业客户所属(异常报表) -->
+	<LPM-RPT-2500>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CustomerType',ci.CustomerType)
+		from Customer_Info ci
+		left
+		join Customer_Belong cb on ci.CustomerID=cb.CustomerID
+		where
+		cb.BelongAttribute='1' and ci.CustomerType like '06%' and
+		(cb.OrgID is
+		null or cb.UserID is null)
+	</LPM-RPT-2500>
+
+	<!-- 集团客户所属(异常报表) -->
+	<LPM-RPT-2510>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		ci.MFCustomerID,
+		ci.CustomerID,
+		ci.CustomerName,
+		getItemName('CustomerType',ci.CustomerType)
+		from Customer_Info ci
+		left
+		join Customer_Belong cb on ci.CustomerID=cb.CustomerID
+		where
+		cb.BelongAttribute='1' and ci.CustomerType like '02%' and
+		(cb.OrgID is
+		null or cb.UserID is null)
+	</LPM-RPT-2510>
+
+	<!--****************************** 业务核对结束 ****************************** -->
+
+</root>

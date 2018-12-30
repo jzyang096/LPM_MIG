@@ -1,0 +1,88 @@
+package com.amarsoft.als.exp;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.amarsoft.are.ARE;
+
+
+public class DBUtil {
+	
+	//获取数据库连接
+	public Connection getConnection(){
+		Connection conn=null;
+		try {
+			conn=ARE.getDBConnection("als");
+		} catch (SQLException e){
+			ARE.getLog().error("ARE获取数据库连接失败!");
+			e.printStackTrace();
+		}
+		return conn;
+	}
+	
+	//关闭资源
+	public void cleanResource(Connection conn,PreparedStatement pstmt,ResultSet rs){
+		if(conn!=null){
+			try{
+				conn.close();
+				conn=null;
+			}catch(SQLException e){
+				e.printStackTrace();
+			}
+		}
+		
+		if(pstmt !=null){
+			try {
+				pstmt.close();
+				pstmt=null;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if(rs !=null){
+			try {
+				rs.close();
+				rs=null;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	//关闭Connection
+	public void closeConnection(Connection conn){
+		if(conn!=null){
+			try{
+				conn.close();
+				conn=null;
+			}catch(SQLException e){
+				e.printStackTrace();
+			}
+		}
+	}
+	//关闭PreparedStatement
+	public void closePreparedStatement(PreparedStatement pstmt){
+		if(pstmt !=null){
+			try {
+				pstmt.close();
+				pstmt=null;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	//关闭ResultSet
+	public void closeResultSet(ResultSet rs){
+		if(rs !=null){
+			try {
+				rs.close();
+				rs=null;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+}

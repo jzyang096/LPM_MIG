@@ -1,0 +1,83 @@
+package com.amarsoft.als.exp;
+
+import java.util.ArrayList;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.util.CellRangeAddress;
+
+public class ExcelSheetTool {
+	
+	//创建Sheet，设置默认列宽
+	public HSSFSheet createSheet(HSSFWorkbook wb,String sSheetName,int sDefaultColumnWidth){
+		HSSFSheet sheet = wb.createSheet(sSheetName);
+		sheet.setDefaultColumnWidth(sDefaultColumnWidth);//统一设置列宽
+		return sheet;
+	}
+	
+	//设置标题样式及标题值
+	public void setRowStyleAndValue0(HSSFWorkbook wb, HSSFRow row0,HSSFSheet sheet,String titleName,int columnNumber){
+		row0.setHeightInPoints(25);//标题的高度
+		//第三步创建标题的单元格样式style2以及字体样式headerFont1
+		HSSFCellStyle style0 = wb.createCellStyle();
+		style0.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		style0.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
+		style0.setFillForegroundColor(HSSFColor.LIGHT_TURQUOISE.index);
+		style0.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		HSSFFont headerFont1 = (HSSFFont) wb.createFont();//创建字体样式
+		headerFont1.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);//字体加粗
+		headerFont1.setFontName("黑体");//设置字体类型
+		headerFont1.setFontHeightInPoints((short) 15);//设置字体大小
+		style0.setFont(headerFont1);//为标题样式设置字体样式
+		HSSFCell cell1 = row0.createCell(0);//创建标题第一列
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, columnNumber - 1)); //合并第0到第n列
+		cell1.setCellValue(titleName); //设置值标题
+		cell1.setCellStyle(style0); //设置标题样式
+	}
+	
+	//设置表头样式及列名值
+	public void setRowStyleAndValue1(HSSFWorkbook wb, HSSFRow row1,HSSFSheet sheet,String titleName,int columnNumber,ArrayList<String> list){
+		row1.setHeightInPoints(20);//设置表头高度
+		//第四步，创建表头单元格样式 以及表头的字体样式
+		HSSFCellStyle style1 = wb.createCellStyle();
+		style1.setWrapText(true);//设置自动换行
+		style1.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		style1.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);//创建一个居中格式
+		style1.setBottomBorderColor(HSSFColor.BLACK.index);
+		style1.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style1.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style1.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style1.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		HSSFFont headerFont = (HSSFFont) wb.createFont();//创建字体样式
+		headerFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);//字体加粗
+		headerFont.setFontName("黑体");//设置字体类型
+		headerFont.setFontHeightInPoints((short) 10);//设置字体大小
+		style1.setFont(headerFont);//为标题样式设置字体样式
+		for (int i = 0; i < columnNumber; i++) {
+			HSSFCell cell = row1.createCell(i);
+			cell.setCellValue(list.get(i));
+			cell.setCellStyle(style1);
+		}
+	}
+	
+	//设置数据单元格样式
+	public HSSFCellStyle setRowStyle2(HSSFWorkbook wb){
+		HSSFCellStyle style2 = wb.createCellStyle();
+		style2.setWrapText(true);//设置自动换行
+		style2.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);//创建一个上下居中格式
+		style2.setAlignment(HSSFCellStyle.ALIGN_CENTER);//左右居中
+		//设置边框
+		style2.setBottomBorderColor(HSSFColor.BLACK.index);
+		style2.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style2.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style2.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		style2.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		return style2;
+	}
+	
+}

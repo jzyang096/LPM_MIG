@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<LPM-RPT-001>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(cb.CustomerID) from Customer_Belong cb,Customer_Info ci
+		where cb.CustomerID=ci.CustomerID and
+		cb.BelongAttribute='1' and ci.CustomerType ='0110'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-001>
+
+	<LPM-RPT-002>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(cb.CustomerID) from Customer_Belong cb,Customer_Info ci
+		where cb.CustomerID=ci.CustomerID and
+		cb.BelongAttribute='1' and ci.CustomerType ='0120'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-002>
+
+	<LPM-RPT-003>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(cb.CustomerID) from Customer_Belong cb,Customer_Info ci
+		where cb.CustomerID=ci.CustomerID and
+		cb.BelongAttribute='1' and ci.CustomerType like '03%'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-003>
+
+	<LPM-RPT-004>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(cb.CustomerID) from Customer_Belong cb,Customer_Info ci
+		where cb.CustomerID=ci.CustomerID and
+		cb.BelongAttribute='1' and ci.CustomerType like '06%'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-004>
+
+	<LPM-RPT-005>
+		select cb.OrgID,
+		getOrgName(cb.OrgID),
+		cb.UserID,
+		count(cb.CustomerID) from Customer_Belong cb,Customer_Info ci
+		where cb.CustomerID=ci.CustomerID and
+		cb.BelongAttribute='1' and ci.CustomerType like '02%'
+		group by cb.OrgID,cb.UserID
+	</LPM-RPT-005>
+	
+	<LPM-RPT-006>
+	
+	</LPM-RPT-006>
+	
+	<LPM-RPT-007>
+	
+	</LPM-RPT-007>
+
+
+</root>

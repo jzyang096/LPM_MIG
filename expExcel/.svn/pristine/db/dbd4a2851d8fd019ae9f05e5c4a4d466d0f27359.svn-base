@@ -1,0 +1,561 @@
+package com.amarsoft.als.exp;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import com.amarsoft.are.ARE;
+
+public class InitData {
+	
+	//0.数据自检，技术核对
+	public void dataCheck(){
+		//1.初始化中间表
+		truncateTable();
+		initData();
+		//2.数据自检,总记录数自检
+		autoDataCheck();
+		//3.额度检查
+		checkZHCLInfo();
+		checkCLDivideInfo();
+		checkTYCLInfo();
+		checkCLOccupy();
+		checkDueBillInfo();
+		checkPLCLInfo();
+	}
+	
+	//1.初始化中间表数据-清除数据
+	public void truncateTable(){
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		try {
+			pstmt=conn.prepareStatement(" truncate table SQ_CL_ERROR ");
+			pstmt.execute();
+			ARE.getLog().debug("SQ_CL_ERROR表初始化数据-清除成功!");
+		} catch (SQLException e) {
+			ARE.getLog().error("SQ_CL_ERROR表初始化数据-清除异常!");
+			e.printStackTrace();
+		}
+		try {
+			pstmt=conn.prepareStatement(" truncate table GUARANTY_CMS_INFO ");
+			pstmt.execute();
+			ARE.getLog().debug("GUARANTY_CMS_INFO表初始化数据-清除成功!");
+		} catch (SQLException e) {
+			ARE.getLog().error("GUARANTY_CMS_INFO表初始化数据-清除异常!");
+			e.printStackTrace();
+		}
+		try {
+			pstmt=conn.prepareStatement(" truncate table CL_OCCUPY_ERROR ");
+			pstmt.execute();
+			ARE.getLog().debug("CL_OCCUPY_ERROR表初始化数据-清除成功!");
+		} catch (SQLException e) {
+			ARE.getLog().error("CL_OCCUPY_ERROR表初始化数据-清除异常!");
+			e.printStackTrace();
+		}
+		try {
+			pstmt=conn.prepareStatement(" truncate table SQ_BAD_DATA ");
+			pstmt.execute();
+			ARE.getLog().debug("SQ_BAD_DATA表初始化数据-清除成功!");
+		} catch (SQLException e) {
+			ARE.getLog().error("SQ_BAD_DATA表初始化数据-清除异常!");
+			e.printStackTrace();
+		}
+		
+		DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+	}
+
+	//2.押品保险信息表数据加工
+	public void initData(){
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		//初始化中间表数据
+		sSql=" insert into Guaranty_CMS_Info (CUSTOMERID,"+
+				" CUSTOMERNAME,"+
+				" OWNERID,"+
+				" OWNERNAME,"+
+				" GUARANTYTYPENAME,"+
+				" GUARANTYID,"+
+				" GUARANTEESLIPNO,"+
+				" STARTDATE,"+
+				" ENDDATE,"+
+				" INSURANCEAMT,"+
+				" INSURERNO,"+
+				" INSURERNAME,"+
+				" INSURERSTATUS,"+
+				" INPUTORGID,"+
+				" BENEFICIARY,"+
+				" INSURANCE,"+
+				" INSURANCERATE,"+
+				" PAYMENTMETHOD,"+
+				" ISSUEDATE,"+
+				" INSURANCENAME) "+
+				" (select distinct bc.CustomerID, "+//客户编号
+				" bc.CustomerName as CustomerName, "+//客户名称
+				" gi.OwnerID as OwnerID, "+//权利人编号
+				" gi.OwnerName as OwnerName, "+//权利人名称
+				" ci.GuarantyTypeName as GuarantyTypeName, "+//押品类型
+				" gi.GuarantyID as GuarantyID, "+//押品编号
+				" cms.GUARANTEESLIPNO,"+//保单号码
+				" cms.STARTDATE,"+//保险起始日
+				" cms.ENDDATE,"+//保险终止日
+				" cms.INSURANCEAMT,"+//投保金额
+				" cms.INSURERNO,"+//保险公司编号
+				" cms.INSURERNAME,"+//保险公司名称
+				" cms.INSURERSTATUS,"+//保险状态
+				" cms.INPUTORGID,"+//登记机构
+				" cms.BENEFICIARY,"+//保险受益人
+				" cms.INSURANCE,"+//保险费
+				" cms.INSURANCERATE,"+//保险费率
+				" cms.PAYMENTMETHOD,"+//缴费方式
+				" cms.ISSUEDATE,"+//出单日期
+				" cms.INSURANCENAME"+//投保人名称
+				" from CMS_INSURANCE_INFO cms, "+
+				" Guaranty_Info gi, "+
+				" Guaranty_Relative gr, "+
+				" Business_Contract bc, "+
+				" CMS_COLLATERALDONO_INFO ci "+
+				" where cms.GuarantyID = gi.GuarantyID "+
+				" and gi.GuarantyID = gr.GuarantyID "+
+				" and gr.ObjectNo = bc.SerialNo "+
+				" and ci.GuarantyType = gi.GuarantyType "+
+				" and gr.ObjectType='BusinessContract')";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.execute();
+			ARE.getLog().debug("初始化数据-押品保险信息表-GUARANTY_CMS_INFO初始化成功!");
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-押品保险信息表-GUARANTY_CMS_INFO初始化失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+	}
+	
+	//3.调用数据自检存储过程
+	public void autoDataCheck(){
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		CallableStatement cstmt =null;
+		conn=DBUtil.getConnection();
+		try {
+			cstmt =conn.prepareCall(" {call SQ_Auto_CheckOut()} ");
+			cstmt.execute();
+			ARE.getLog().debug("初始化数据-数据自检-SQ_BAD_DATA初始化成功!");
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-数据自检-SQ_BAD_DATA初始化失败!");
+			e.printStackTrace();
+		}
+		try {
+			cstmt =conn.prepareCall(" {call SQ_CHECK_TABLEROW()} ");
+			cstmt.execute();
+			ARE.getLog().debug("初始化数据-总记录数自检-SQ_TABLE_ROW初始化成功!");
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-总记录数自检-SQ_TABLE_ROW初始化失败!");
+			e.printStackTrace();
+		}
+		DBUtil.closeConnection(conn);
+		DBUtil.closeCallableStatement(cstmt);
+	}
+	
+	//4.综合授信额度校验
+	public void checkZHCLInfo(){
+		String sSql="";
+		String sLineID="";
+		double zhLineSum1=0.0;
+		double zhLineSum2=0.0;
+		DBUtil DBUtil=new DBUtil();
+		CLManager clm = new CLManager();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		ArrayList<String> ls = new ArrayList<String>();
+		sSql=" select lineID,LineSum1,LineSum2 from CL_Info where CLTypeID='060' and Status='1' order by lineID ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			while(rs.next()){
+				sLineID=rs.getString("lineID");
+				if(sLineID==null) sLineID="";
+				zhLineSum1=rs.getDouble("LineSum1");
+				zhLineSum2=rs.getDouble("LineSum2");
+				if( (zhLineSum1 != clm.getBaseLineSum1(sLineID)+clm.getZXLineSum1(sLineID)) ||
+						(zhLineSum2 != clm.getBaseLineSum2(sLineID)+clm.getZXLineSum2(sLineID)) 
+					){
+					ls.add(sLineID);
+				}
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-综合授信额度校验失败!");
+			e.printStackTrace();
+			DBUtil.cleanResource(conn, pstmt, rs);
+			return;
+		}
+		if(ls.size()==0){//若无异常数据，则不执行insert语句
+			ARE.getLog().debug("初始化数据-综合授信额度校验初始化成功!");
+			DBUtil.cleanResource(conn, pstmt, rs);
+			return;
+		}
+		//初始化综合授信额度异常表
+		String sSql_zh=" insert into SQ_CL_ERROR (CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,Flag) "+
+				" (select CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,'1' from CL_Info where LineID=? and Status='1') ";
+		String sSql_zh_qf=" insert into SQ_CL_ERROR (CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,Flag) "+
+				" (select CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,'1' from CL_Info where parentLineID=? and Status='1' )";
+		for(int i=0;i<ls.size();i++){
+			try {
+				pstmt=conn.prepareStatement(sSql_zh);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				pstmt=conn.prepareStatement(sSql_zh_qf);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				if(i==ls.size()-1){
+					ARE.getLog().debug("初始化数据-综合授信额度校验初始化成功!");
+				}
+			} catch (SQLException e) {
+				ARE.getLog().error("初始化数据-综合授信额度校验初始化失败!");
+				e.printStackTrace();
+			}
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+	}
+	
+	//5.基本授信切分额度校验
+	public void checkCLDivideInfo(){
+		String sSql="";
+		String sLineID="";
+		String sCurrency="";
+		double dLineSum1=0.0;
+		double dLineSum2=0.0;
+		DBUtil DBUtil=new DBUtil();
+		CLManager clm = new CLManager();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		ArrayList<String> ls = new ArrayList<String>();
+		sSql=" select lineID,Currency,LineSum1,LineSum2 from CL_Info where CLTypeID='010' and Status='1' order by lineID ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			while(rs.next()){
+				sLineID=rs.getString("lineID");
+				if(sLineID==null) sLineID="";
+				sCurrency=rs.getString("Currency");
+				if(sCurrency==null) sCurrency="";
+				dLineSum1=rs.getDouble("LineSum1");
+				dLineSum2=rs.getDouble("LineSum2");
+				if((dLineSum1 != clm.getDivideLineSum1(sLineID, sCurrency)) || 
+						(dLineSum2 != clm.getDivideLineSum2(sLineID, sCurrency))
+					){
+					ls.add(sLineID);
+				}
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-基本授信切分额度校验失败!");
+			e.printStackTrace();
+			DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+			return;
+		}
+		if(ls.size()==0) {//若无异常数据，则不执行insert语句
+			ARE.getLog().debug("初始化数据-基本授信切分额度校验初始化成功!");
+			DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+			return;
+		}
+		//初始化综合授信额度异常表
+		String sSql_zh=" insert into SQ_CL_ERROR (CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,Flag) "+
+				" (select CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,LineID,'2' from CL_Info where LineID=? and Status='1') ";
+		String sSql_zh_qf=" insert into SQ_CL_ERROR (CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,Flag) "+
+				" (select ci.CustomerID,ci.CustomerName,cd.Serialno,'',cd.DivideCode,cd.Currency,cd.BusinessSum,cd.ExposureSum,cd.ObjectNo,'2' from CL_Info ci,CL_Divide cd "+ 
+				" where cd.ObjectNo=ci.LineID and cd.ObjectType='CLInfo' and cd.Objectno=?) ";
+		for(int i=0;i<ls.size();i++){
+			try {
+				pstmt=conn.prepareStatement(sSql_zh);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				pstmt=conn.prepareStatement(sSql_zh_qf);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				if(i==ls.size()-1){
+					ARE.getLog().debug("初始化数据-基本授信切分额度校验初始化成功!");
+				}
+			} catch (SQLException e) {
+				ARE.getLog().error("初始化数据-基本授信切分额度校验初始化失败!");
+				e.printStackTrace();
+			}
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+	}
+	
+	//6.同业切分额度校验
+	public void checkTYCLInfo(){
+		String sSql="";
+		String sLineID="";
+		String sCurrency="";
+		double dLineSum1=0.0;
+		double dLineSum2=0.0;
+		DBUtil DBUtil=new DBUtil();
+		CLManager clm = new CLManager();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		ArrayList<String> ls = new ArrayList<String>();
+		sSql=" select lineID,Currency,LineSum1,LineSum2 from CL_Info where CLTypeID='080' and Status='1' order by lineID ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			while(rs.next()){
+				sLineID=rs.getString("lineID");
+				if(sLineID==null) sLineID="";
+				sCurrency=rs.getString("Currency");
+				if(sCurrency==null) sCurrency="";
+				dLineSum1=rs.getDouble("LineSum1");
+				dLineSum2=rs.getDouble("LineSum2");
+				if((dLineSum1 != clm.getTYLineSum1(sLineID, sCurrency)) || 
+						(dLineSum2 != clm.getTYLineSum2(sLineID, sCurrency))
+					){
+					ls.add(sLineID);
+				}
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-同业切分额度校验失败!");
+			e.printStackTrace();
+			DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+			return;
+		}
+		if(ls.size()==0) {//若无异常数据，则不执行insert语句
+			ARE.getLog().debug("初始化数据-同业切分额度校验初始化成功!");
+			DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+			return;
+		}
+		//初始化综合授信额度异常表
+		String sSql_zh=" insert into SQ_CL_ERROR (CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,Flag) "+
+				" (select CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,'3' from CL_Info where LineID=? and Status='1') ";
+		String sSql_zh_qf=" insert into SQ_CL_ERROR (CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,Flag) "+
+				" (select CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,'3' from CL_Info where parentLineID=? and CLTypeId='130' and Status='1') ";
+		for(int i=0;i<ls.size();i++){
+			try {
+				pstmt=conn.prepareStatement(sSql_zh);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				pstmt=conn.prepareStatement(sSql_zh_qf);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				if(i==ls.size()-1){
+					ARE.getLog().debug("初始化数据-同业切分额度校验初始化成功!");
+				}
+			} catch (SQLException e) {
+				ARE.getLog().error("初始化数据-同业切分额度校验初始化失败!");
+				e.printStackTrace();
+			}
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+	}
+	
+	//7.批量成员授信额度校验
+	public void checkPLCLInfo(){
+		String sSql="";
+		String sLineID="";
+		String sCurrency="";
+		double dLineSum1=0.0;
+		double dLineSum2=0.0;
+		DBUtil DBUtil=new DBUtil();
+		CLManager clm = new CLManager();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		ArrayList<String> ls = new ArrayList<String>();
+		sSql=" select lineID,Currency,LineSum1,LineSum2 from CL_INFO where lineID in "
+		   + "(select distinct RelativeBatchSerialno from APPLY_BATCHRELATIVE where IsOccupancy='01' and ObjectType='CLInfo')";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			while(rs.next()){
+				sLineID=rs.getString("lineID");
+				if(sLineID==null) sLineID="";
+				sCurrency=rs.getString("Currency");
+				if(sCurrency==null) sCurrency="";
+				dLineSum1=rs.getDouble("LineSum1");
+				dLineSum2=rs.getDouble("LineSum2");
+				if((dLineSum1 != clm.getPLLineSum1(sLineID, sCurrency)) || 
+					(dLineSum2 != clm.getPLLineSum2(sLineID, sCurrency))
+					){
+					ls.add(sLineID);
+				}
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-批量成员授信额度校验失败!");
+			e.printStackTrace();
+			DBUtil.cleanResource(conn, pstmt, rs);
+			return;
+		}
+		if(ls.size()==0) {//若无异常数据，则不执行insert语句
+			ARE.getLog().debug("初始化数据-批量成员授信额度校验初始化成功!");
+			DBUtil.cleanResource(conn, pstmt, rs);
+			return;
+		}
+		//初始化综合授信额度异常表
+		String sSql_zh=" insert into SQ_CL_ERROR (CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,Flag) "+
+				" (select CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,'4' from CL_Info where LineID=? and Status='1') ";
+		String sSql_zh_qf=" insert into SQ_CL_ERROR (CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,Flag) "+
+				" (select CustomerID,CustomerName,LineID,CLTypeID,BusinessType,Currency,LineSum1,LineSum2,parentLineID,'5' from CL_Info where parentLineID=? and CLTypeId='130' and Status='1') ";
+		for(int i=0;i<ls.size();i++){
+			try {
+				pstmt=conn.prepareStatement(sSql_zh);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				pstmt=conn.prepareStatement(sSql_zh_qf);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				if(i==ls.size()-1){
+					ARE.getLog().debug("初始化数据-批量成员授信额度校验初始化成功!");
+				}
+			} catch (SQLException e) {
+				ARE.getLog().error("初始化数据-批量成员授信额度校验初始化失败!");
+				e.printStackTrace();
+			}
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+	}
+	
+	//8.额度占用金额校验-占额层
+	public void checkCLOccupy(){
+		String sSql="";
+		String sLineID="";
+		String sCLTypeID="";
+		String sCurrency="";
+		double dUsedBusinessSum=0.0;//已用名义金额
+		double dUsedExposureSum=0.0;//已用敞口金额
+		DBUtil DBUtil=new DBUtil();
+		CLManager clm = new CLManager();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		ArrayList<String> ls = new ArrayList<String>();
+		
+		sSql=" select LineID,CLTypeID,Currency,UsedBusinessSum,UsedExposureSum from CL_Info where UsedBusinessSum is not null and UsedExposureSum is not null and status='1' ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			while(rs.next()){
+				sLineID=rs.getString("LineID");
+				if(sLineID==null) sLineID="";
+				sCLTypeID=rs.getString("CLTypeID");
+				if(sCLTypeID==null) sCLTypeID="";
+				sCurrency=rs.getString("Currency");
+				if(sCurrency==null) sCurrency="";
+				dUsedBusinessSum=rs.getDouble("UsedBusinessSum");
+				dUsedExposureSum=rs.getDouble("UsedExposureSum");
+				if(dUsedBusinessSum != clm.getCLOccupyBusinessSum(sLineID, sCLTypeID, sCurrency)
+					|| dUsedExposureSum !=clm.getCLOccupyExposureSum(sLineID, sCLTypeID, sCurrency)){
+					ls.add(sLineID);
+				}
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-额度占用金额校验失败!");
+			DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+			e.printStackTrace();
+			return;
+		}
+		if(ls.size()==0) {//若无异常数据，则不执行insert语句
+			ARE.getLog().debug("初始化数据-额度占用金额校验初始化成功!");
+			DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+			return;
+		}
+		//初始化额度占用异常表
+		sSql=" insert into CL_OCCUPY_ERROR (SerialNo,ObjectNo,RelativeSerialno,Currency,BusinessSum,ExposureSum,Flag,sourceSysNo ) "+
+				" (select SerialNo,ObjectNo,RelativeSerialno,Currency,BusinessSum,ExposureSum,'1',sourceSysNo from CL_OCCUPY where RelativeSerialno=?) ";
+		for(int i=0;i<ls.size();i++){
+			try {
+				pstmt=conn.prepareStatement(sSql);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				if(i==ls.size()-1){
+					ARE.getLog().debug("初始化数据-额度占用金额校验初始化成功!");
+				}
+			} catch (SQLException e) {
+				ARE.getLog().error("初始化数据-额度占用金额校验初始化失败!");
+				e.printStackTrace();
+			}
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+	}
+	
+	//9.额度占用-借据金额校验-借据层
+	public void checkDueBillInfo(){
+		String sSql="";
+		String sLineID="";
+		String sSerialNo="";
+		String sCurrency="";
+		double dBusinessSum=0.0;//名义金额
+		double dExposureSum=0.0;//敞口金额
+		DBUtil DBUtil=new DBUtil();
+		CLManager clm = new CLManager();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		ArrayList<String> ls = new ArrayList<String>();
+		try {
+			sSql=" select ObjectNo,Currency,BusinessSum,ExposureSum,RelativeSerialno from CL_Occupy where ObjectType='PutOutApply' and ObjectNo in (select SerialNo from Business_Duebill) ";
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			while(rs.next()){
+				sSerialNo=rs.getString("ObjectNo");
+				if(sSerialNo==null) sSerialNo="";
+				sLineID=rs.getString("RelativeSerialno");
+				if(sLineID==null) sLineID="";
+				sCurrency=rs.getString("Currency");
+				if(sCurrency==null) sCurrency="";
+				dBusinessSum=rs.getDouble("BusinessSum");
+				dExposureSum=rs.getDouble("ExposureSum");
+				if( dBusinessSum !=clm.getDueBillBusinessSum(sSerialNo, sLineID) ||
+					dExposureSum !=clm.getDueBillExposureSum(sSerialNo, sLineID) ){
+					ls.add(sLineID);
+				}
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-额度占用-借据金额校验失败!");
+			DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+			e.printStackTrace();
+			return;
+		}
+		if(ls.size()==0) {//若无异常数据，则不执行insert语句
+			ARE.getLog().debug("初始化数据-额度占用-借据金额校验初始化成功!");
+			DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+			return;
+		}
+		sSql=" insert into CL_OCCUPY_ERROR (SerialNo,ObjectNo,RelativeSerialno,Currency,BusinessSum,ExposureSum,Flag,sourceSysNo ) "+
+				" (select SerialNo,ObjectNo,RelativeSerialno,Currency,BusinessSum,ExposureSum,'2',sourceSysNo from CL_OCCUPY where RelativeSerialno=?) ";
+		for(int i=0;i<ls.size();i++){
+			try {
+				pstmt=conn.prepareStatement(sSql);
+				pstmt.setString(1, ls.get(i));
+				pstmt.execute();
+				if(i==ls.size()-1){
+					ARE.getLog().debug("初始化数据-额度占用-借据金额校验初始化成功!");
+				}
+			} catch (SQLException e) {
+				ARE.getLog().error("初始化数据-额度占用-借据金额校验初始化失败!");
+				e.printStackTrace();
+			}
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);//关闭资源
+	}
+	
+	
+	
+	
+}

@@ -1,0 +1,272 @@
+package com.amarsoft.als.exp;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import com.amarsoft.are.ARE;
+
+public class CLManager {
+
+	//获得综合授信额度
+	public ArrayList<String> getZHCLLineID(){
+		ArrayList<String> ls = new ArrayList<String>();
+		String sSql="";
+		String sLineID="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select lineID from CL_Info where CLTypeID='060' and Status='1' ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			while(rs.next()){
+				sLineID=rs.getString("lineID");
+				if(sLineID==null) sLineID="";
+				ls.add(sLineID);
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获得综合授信额度流水失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return ls;
+	}
+	
+	//获取基本授信额度名义金额
+	public double getBaseLineSum1(String sLineId){
+		double LineSum1 = 0.0;
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select LineSum1 from CL_Info where parentLineID=? and Status='1' and CLTypeId='010' ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sLineId);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				LineSum1=rs.getDouble("LineSum1");
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获取基本授信额度名义金额失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return LineSum1;
+	}
+	
+	//获得基本授信额度敞口金额
+	public double getBaseLineSum2(String sLineId){
+		double LineSum2 = 0.0;
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select LineSum2 from CL_Info where parentLineID=? and Status='1' and CLTypeId='010'";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sLineId);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				LineSum2=rs.getDouble("LineSum2");
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获得基本授信额度敞口金额失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return LineSum2;
+	}
+	
+	//获得专项额度名义金额
+	public double getZXLineSum1(String sLineId){
+		double LineSum1 = 0.0;
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select sum(getERate1(Currency,'156')*LineSum1) as LineSum1 from CL_Info where parentLineID=? and Status='1' and CLTypeId='020'";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sLineId);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				LineSum1=rs.getDouble("LineSum1");
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获得专项额度名义金额失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return LineSum1;
+	}
+	
+	//获得专项额度敞口金额
+	public double getZXLineSum2(String sLineId){
+		double LineSum2 = 0.0;
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select sum(getERate1(Currency,'156')*LineSum2) as LineSum2 from CL_Info where parentLineID=? and Status='1' and CLTypeId='020'";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sLineId);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				LineSum2=rs.getDouble("LineSum2");
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获得专项额度敞口金额失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return LineSum2;
+	}
+	
+	//获得基本授信额度流水
+	public ArrayList<String> getBaseCLLineID(){
+		ArrayList<String> ls = new ArrayList<String>();
+		String sSql="";
+		String sLineID="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select lineID from CL_Info where CLTypeID='010' and Status='1' ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			rs=pstmt.executeQuery();
+			while(rs.next()){
+				sLineID=rs.getString("lineID");
+				if(sLineID==null) sLineID="";
+				ls.add(sLineID);
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获得基本授信额度流水失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return ls;
+	}
+	
+	//获得基本授信切分额度汇总名义金额
+	public double getDivideLineSum1(String sLineId,String sCurrency){
+		double LineSum1 = 0.0;
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select sum(getERate1(Currency,?)*BusinessSum) as LineSum1 from CL_Divide where ObjectType='CLInfo' and ObjectNo=?";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sCurrency);
+			pstmt.setString(2, sLineId);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				LineSum1=rs.getDouble("LineSum1");
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获得基本授信切分额度汇总名义金额失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return LineSum1;
+	}
+	
+	//获得基本授信切分额度汇总敞口金额
+	public double getDivideLineSum2(String sLineId,String sCurrency){
+		double LineSum2 = 0.0;
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select sum(getERate1(Currency,?)*ExposureSum) as LineSum2 from CL_Divide where ObjectType='CLInfo' and ObjectNo=?";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sCurrency);
+			pstmt.setString(2, sLineId);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				LineSum2=rs.getDouble("LineSum2");
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获得基本授信切分额度汇总敞口金额失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return LineSum2;
+	}
+	
+	//获得同业切分额度汇总名义金额
+	public double getTYLineSum1(String sLineId,String sCurrency){
+		double LineSum1 = 0.0;
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select sum(getERate1(Currency,?)*LineSum1) as LineSum1 from CL_Info where parentLineID=? and Status='1' and CLTypeId='130' ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sCurrency);
+			pstmt.setString(2, sLineId);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				LineSum1=rs.getDouble("LineSum1");
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获得同业切分额度汇总名义金额失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return LineSum1;
+	}
+	
+	//获得同业切分额度汇总敞口金额
+	public double getTYLineSum2(String sLineId,String sCurrency){
+		double LineSum2 = 0.0;
+		String sSql="";
+		DBUtil DBUtil=new DBUtil();
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		conn=DBUtil.getConnection();
+		sSql=" select sum(getERate1(Currency,?)*LineSum2) as LineSum2 from CL_Info where parentLineID=? and Status='1' and CLTypeId='130' ";
+		try {
+			pstmt=conn.prepareStatement(sSql);
+			pstmt.setString(1, sCurrency);
+			pstmt.setString(2, sLineId);
+			rs=pstmt.executeQuery();
+			if(rs.next()){
+				LineSum2=rs.getDouble("LineSum2");
+			}
+		} catch (SQLException e) {
+			ARE.getLog().error("初始化数据-获得同业切分额度汇总敞口金额失败!");
+			e.printStackTrace();
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return LineSum2;
+	}
+	
+	
+}

@@ -1,0 +1,90 @@
+package com.amarsoft.als.exp;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+public class GenExcelSheet {
+	
+	public HSSFWorkbook genExcelSheet(HSSFWorkbook wb,String sFlag,String sTableName,String sheetName, String titleName,int columnNumber,ArrayList<String> list,String sOrgID) throws Exception {
+		//定义数据库变量
+		DBUtil DBUtil = new DBUtil();
+		SqlManager sqlManager = new SqlManager();
+		String sSql = "";
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		//2.在Excel中添加一个sheet,对应Excel文件中的sheet
+		ExcelSheetTool excelSheet=new ExcelSheetTool();
+		HSSFSheet sheet=excelSheet.createSheet(wb, sheetName, 20);
+		//创建返回目录链接
+		HSSFRow row0 = sheet.createRow((int) 0);
+		excelSheet.setBackLink(wb, row0, sheet);
+		//3.创建第1行--标题,合并列
+		HSSFRow row1 = sheet.createRow((int) 1);
+		excelSheet.setRowStyleAndValue1(wb, row1, sheet, titleName, columnNumber);
+		//4.创建第2行--表头
+		HSSFRow row2 = sheet.createRow((int) 2);
+		excelSheet.setRowStyleAndValue2(wb, row2, sheet, titleName, columnNumber, list);
+		//5.获取数据
+		sSql=sqlManager.getSql(sFlag,sOrgID);//生成Sheet数据Sql
+		//System.out.println("sSql="+sSql);
+		conn=DBUtil.getConnection();
+		pstmt=conn.prepareStatement(sSql);
+		rs = pstmt.executeQuery();
+		//6.为数据内容设置单元格样式(自动换行,上下居中,左右居中)
+		HSSFCellStyle style2=excelSheet.setRowStyle2(wb);
+		int i = 1;
+		while(rs.next()){
+			//第五步，创建单元格并设置值
+			row2 = sheet.createRow((int) i + 2);
+			i++;
+			//为数据内容设置特点新单元格样式1 自动换行 上下居中
+			HSSFCell datacell = null;
+			for (int j = 0; j < columnNumber; j++){
+				datacell = row2.createCell(j);
+				datacell.setCellValue(rs.getString(j+1));
+				datacell.setCellStyle(style2);
+			}
+		}
+		DBUtil.cleanResource(conn, pstmt, rs);
+		return wb;
+	}
+	
+	//目录页面设置样式
+	public HSSFWorkbook genExcelIndex(HSSFWorkbook wb,ArrayList<String> list) throws Exception {
+		//定义数据库变量
+		SqlManager sqlManager = new SqlManager();
+		//2.在Excel中添加一个sheet,对应Excel文件中的sheet
+		ExcelSheetTool excelSheet=new ExcelSheetTool();
+		HSSFSheet sheet=excelSheet.createSheet(wb, "目录", 50);
+		//3.创建第0行--标题
+		HSSFRow row0 = sheet.createRow((int) 0);
+		excelSheet.setRowStyleAndValue1(wb, row0, sheet, "目录", 1);
+		//4.创建第1行--表头
+//		HSSFRow row1 = sheet.createRow((int) 1);
+//		excelSheet.setRowStyleAndValue1(wb, row1, sheet, "目录", 1, list);
+		ArrayList<String> indexList=new ArrayList<String>();
+		indexList=sqlManager.getIndexName(list);
+		for(int i=0;i<list.size();i++){
+			HSSFRow row1 = sheet.createRow((int) i + 1);
+			//为数据内容设置特点新单元格样式1 自动换行 上下居中
+			HSSFCell indexCell = null;
+			indexCell = row1.createCell(0);
+			indexCell.setCellValue((String) indexList.get(i));
+			//indexCell.setCellStyle(style2);
+			//"#"表示本文档 "明细页面"表示sheet页名称 "A10"表示第几列第几行
+			String sAddress="#"+indexList.get(i)+"!A4";
+			excelSheet.setIndexStyle(wb, indexCell, sAddress);
+		}
+		return wb;
+	}
+	
+}

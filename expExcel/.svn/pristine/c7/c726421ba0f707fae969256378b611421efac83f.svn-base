@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task>
+	<QueueLen>10</QueueLen>
+	<ThreadPoolSize>10</ThreadPoolSize>
+	<Src>als</Src>
+	<SheetList>
+	<!--******************************  技术核对   ******************************-->
+		<!-- 客户(大中)记录数 -->
+		<LPM-RPT-1010>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-1010>
+		
+		<!-- 客户(小微)记录数 -->
+		<LPM-RPT-1020>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-1020>
+		
+		<!-- 客户(个人)记录数 -->
+		<LPM-RPT-1030>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-1030>
+		
+		<!-- 客户(同业)记录数 -->
+		<LPM-RPT-1040>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-1040>
+		
+		<!-- 客户(集团)记录数 -->
+		<LPM-RPT-1050>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-1050>
+		
+		<!-- 客户(集团成员)记录数 -->
+		<LPM-RPT-1060>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="集团编号" />
+			<Column name="集团名称" />
+			<Column name="客户数量" />
+		</LPM-RPT-1060>
+		
+		<!-- 业务合同记录数 -->
+		<LPM-RPT-1070>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="业务品种" />
+			<Column name="合同类型" />
+			<Column name="合同数量" />
+		</LPM-RPT-1070>
+		
+		<!-- 担保合同记录数 -->
+		<LPM-RPT-1080>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="担保类型" />
+			<Column name="担保方式" />
+			<Column name="合同数量" />
+		</LPM-RPT-1080>
+		
+		<!-- 押品记录数 -->
+		<LPM-RPT-1090>
+			<Column name="权利人编号" />
+			<Column name="权利人名称" />
+			<Column name="押品类型" />
+			<Column name="押品数量" />
+		</LPM-RPT-1090>
+		
+		<!-- 押品权利人总额核对 -->
+		<LPM-RPT-1100>
+
+		</LPM-RPT-1100>
+		
+		<!-- 押品保险记录数核对 -->
+		<LPM-RPT-1110>
+			<Column name="权利人编号" />
+			<Column name="权利人名称" />
+			<Column name="押品编号" />
+			<Column name="押品类型" />
+			<Column name="保险数量" />
+		</LPM-RPT-1110>
+		
+		<!-- 额度记录数核对 -->
+		<LPM-RPT-1120>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="额度类型" />
+			<Column name="业务品种" />
+			<Column name="币种" />
+			<Column name="额度数量" />
+		</LPM-RPT-1120>
+		
+		<!-- 基本授信额度切分记录数核对 -->
+		<LPM-RPT-1130>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="基本授信额度编号" />
+			<Column name="额度数量" />
+		</LPM-RPT-1130>
+		
+		<!-- 集团成员额度记录数核对 -->
+		<LPM-RPT-1140>
+			<Column name="集团编号" />
+			<Column name="集团名称" />
+			<Column name="额度数量" />
+		</LPM-RPT-1140>
+		
+		<!-- 批量授信额度记录数核对 -->
+		<LPM-RPT-1150>
+			<Column name="批量授信额度编号" />
+			<Column name="是否占用批量授信" />
+			<Column name="额度数量" />
+		</LPM-RPT-1150>
+		
+		<LPM-RPT-1160></LPM-RPT-1160>
+		<LPM-RPT-1170></LPM-RPT-1170>
+		<LPM-RPT-1180></LPM-RPT-1180>
+		<LPM-RPT-1190></LPM-RPT-1190>
+		
+		<!-- 综合授信额度金额校验 -->
+		<LPM-RPT-1200>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="额度编号" />
+			<Column name="额度类型" />
+			<Column name="业务品种" />
+			<Column name="币种" />
+			<Column name="名义金额" />
+			<Column name="敞口金额" />
+			<Column name="关联综合授信额度编号" />
+		</LPM-RPT-1200>
+		
+		<!-- 基本授信切分额度金额校验 -->
+		<LPM-RPT-1210>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="额度编号" />
+			<Column name="额度类型" />
+			<Column name="业务品种" />
+			<Column name="币种" />
+			<Column name="名义金额" />
+			<Column name="敞口金额" />
+			<Column name="关联基本授信额度编号" />
+		</LPM-RPT-1210>
+		
+		<!-- 同业额度金额校验 -->
+		<LPM-RPT-1220>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="额度编号" />
+			<Column name="额度类型" />
+			<Column name="业务品种" />
+			<Column name="币种" />
+			<Column name="名义金额" />
+			<Column name="敞口金额" />
+			<Column name="关联基本授信额度编号" />
+		</LPM-RPT-1220>
+		
+		<LPM-RPT-1230>
+		
+		</LPM-RPT-1230>
+		
+		<!-- 借据记录数(一般贷款) -->
+		<LPM-RPT-1240>
+			<Column name="CIN" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="关联业务合同" />
+			<Column name="业务品种" />
+			<Column name="借据数量" />
+		</LPM-RPT-1240>
+		
+		<!-- 借据记录数(票据) -->
+		<LPM-RPT-1250>
+			<Column name="CIN" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="关联业务合同" />
+			<Column name="业务品种" />
+			<Column name="借据数量" />
+		</LPM-RPT-1250>
+		
+		<!-- 借据记录数(国结) -->
+		<LPM-RPT-1260>
+			<Column name="CIN" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="关联业务合同" />
+			<Column name="业务品种" />
+			<Column name="借据数量" />
+		</LPM-RPT-1260>
+		
+		<!-- 借据记录数(供应链) -->
+		<LPM-RPT-1270>
+			<Column name="CIN" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="关联业务合同" />
+			<Column name="业务品种" />
+			<Column name="借据数量" />
+		</LPM-RPT-1270>
+		
+		<!-- 借据总余额核对(一般贷款) -->
+		<LPM-RPT-1280>
+			<Column name="借据编号" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="业务品种" />
+			<Column name="币种" />
+			<Column name="借据金额" />
+			<Column name="起始日" />
+			<Column name="到期日" />
+			<Column name="实际到期日" />
+			<Column name="发放利率" />
+			<Column name="总余额" />
+			<Column name="正常余额" />
+			<Column name="逾期余额" />
+			<Column name="呆滞余额" />
+			<Column name="呆账余额" />
+		</LPM-RPT-1280>
+		
+		<!-- 借据总余额核对(票据) -->
+		<LPM-RPT-1290>
+			<Column name="借据编号" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="业务品种" />
+			<Column name="币种" />
+			<Column name="借据金额" />
+			<Column name="起始日" />
+			<Column name="到期日" />
+			<Column name="实际到期日" />
+			<Column name="发放利率" />
+			<Column name="总余额" />
+			<Column name="正常余额" />
+			<Column name="逾期余额" />
+			<Column name="呆滞余额" />
+			<Column name="呆账余额" />
+		</LPM-RPT-1290>
+		
+		<!-- 借据总余额核对(国结) -->
+		<LPM-RPT-1300>
+			<Column name="借据编号" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="业务品种" />
+			<Column name="币种" />
+			<Column name="借据金额" />
+			<Column name="起始日" />
+			<Column name="到期日" />
+			<Column name="实际到期日" />
+			<Column name="发放利率" />
+			<Column name="总余额" />
+			<Column name="正常余额" />
+			<Column name="逾期余额" />
+			<Column name="呆滞余额" />
+			<Column name="呆账余额" />
+		</LPM-RPT-1300>
+		
+		<!-- 借据总余额核对(供应链) -->
+		<LPM-RPT-1310>
+			<Column name="借据编号" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="业务品种" />
+			<Column name="币种" />
+			<Column name="借据金额" />
+			<Column name="起始日" />
+			<Column name="到期日" />
+			<Column name="实际到期日" />
+			<Column name="发放利率" />
+			<Column name="总余额" />
+			<Column name="正常余额" />
+			<Column name="逾期余额" />
+			<Column name="呆滞余额" />
+			<Column name="呆账余额" />
+		</LPM-RPT-1310>
+		
+		<LPM-RPT-1320></LPM-RPT-1320>
+		
+		<!-- 
+		<LPM-RPT-003>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户编号" />
+			<Column name="CIN" />
+			<Column name="客户名称" />
+			<Column name="性别" />
+			<Column name="出生日期" />
+			<Column name="婚姻状况" />
+			<Column name="最高学历" />
+			<Column name="最高学位" />
+			<Column name="居住状况" />
+			<Column name="手机号码" />
+			<Column name="职业" />
+			<Column name="单位名称" />
+			<Column name="单位所属行业" />
+		</LPM-RPT-003>
+		
+		<LPM-RPT-005>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户编号" />
+			<Column name="CIN" />
+			<Column name="客户名称" />
+			<Column name="组织类型" />
+			<Column name="企业规模" />
+			<Column name="国标行业分类" />
+			<Column name="所属集团" />
+			<Column name="所属集团名称" />
+		</LPM-RPT-005>
+		
+		<LPM-RPT-006>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户类型" />
+			<Column name="客户数量" />
+		</LPM-RPT-006>
+		
+		<LPM-RPT-007>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="集团编号" />
+			<Column name="集团户号" />
+			<Column name="集团名称" />
+			<Column name="核心企业客户编号" />
+			<Column name="核心企业客户名称" />
+			<Column name="是否财务集中" />
+		</LPM-RPT-007>
+		
+		<LPM-RPT-008>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-008>
+
+		<LPM-RPT-017>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="押品类型" />
+			<Column name="押品编号" />
+			<Column name="保险公司名称" />
+			<Column name="保险状态" />
+			<Column name="保单号" />
+			<Column name="金额" />
+			<Column name="保险受益人" />
+			<Column name="保单生效日" />
+			<Column name="保单到期日" />
+		</LPM-RPT-017>
+
+		<LPM-RPT-018>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="押品类型" />
+			<Column name="押品编号" />
+			<Column name="笔数" />
+		</LPM-RPT-018>
+		
+		<LPM-RPT-001>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="CIN" />
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="中征码" />
+			<Column name="客户类型" />
+			<Column name="企业类型" />
+			<Column name="企业规模" />
+			<Column name="国标行业分类" />
+			<Column name="是否征信标准集团客户" />
+			<Column name="所属集团" />
+			<Column name="集团名称" />
+		</LPM-RPT-001>
+		
+		<LPM-RPT-002>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户类型" />
+			<Column name="客户数量" />
+		</LPM-RPT-002>
+		
+		<LPM-RPT-003>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户编号" />
+			<Column name="CIN" />
+			<Column name="客户名称" />
+			<Column name="性别" />
+			<Column name="出生日期" />
+			<Column name="婚姻状况" />
+			<Column name="最高学历" />
+			<Column name="最高学位" />
+			<Column name="居住状况" />
+			<Column name="手机号码" />
+			<Column name="职业" />
+			<Column name="单位名称" />
+			<Column name="单位所属行业" />
+		</LPM-RPT-003>
+		
+		<LPM-RPT-004>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-004>
+		
+		<LPM-RPT-005>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户编号" />
+			<Column name="CIN" />
+			<Column name="客户名称" />
+			<Column name="组织类型" />
+			<Column name="企业规模" />
+			<Column name="国标行业分类" />
+			<Column name="所属集团" />
+			<Column name="所属集团名称" />
+		</LPM-RPT-005>
+		
+		<LPM-RPT-006>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户类型" />
+			<Column name="客户数量" />
+		</LPM-RPT-006>
+		
+		<LPM-RPT-007>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="集团编号" />
+			<Column name="集团户号" />
+			<Column name="集团名称" />
+			<Column name="核心企业客户编号" />
+			<Column name="核心企业客户名称" />
+			<Column name="是否财务集中" />
+		</LPM-RPT-007>
+		
+		<LPM-RPT-008>
+			<Column name="所属机构" />
+			<Column name="机构名称" />
+			<Column name="所属客户经理" />
+			<Column name="客户数量" />
+		</LPM-RPT-008>
+
+		<LPM-RPT-017>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="押品类型" />
+			<Column name="押品编号" />
+			<Column name="保险公司名称" />
+			<Column name="保险状态" />
+			<Column name="保单号" />
+			<Column name="金额" />
+			<Column name="保险受益人" />
+			<Column name="保单生效日" />
+			<Column name="保单到期日" />
+		</LPM-RPT-017>
+
+		<LPM-RPT-018>
+			<Column name="客户编号" />
+			<Column name="客户名称" />
+			<Column name="押品类型" />
+			<Column name="押品编号" />
+			<Column name="笔数" />
+		</LPM-RPT-018>
+		-->
+	</SheetList>
+</task>
